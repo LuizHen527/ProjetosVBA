@@ -14,6 +14,9 @@ Sub CopyPaste()
         
     'Tire os filtros da tabelas
     
+                 '////Coloca no programa para abrir e remover os filtros
+    
+    
     'Rode o programa(tecla F5)
 
 'Como adicionar mais colunas?
@@ -42,6 +45,9 @@ strFileName = ThisWorkbook.Name
 'Set do numero de linhas
 Workbooks("HISTÓRICO PRODUÇÃO 2022-2024_V5.xlsm").Activate
 Worksheets("01_Base").Select
+
+'Desliga a atualização da tela
+Application.ScreenUpdating = False
 
 'Linha que os dados serão colados. Primeira linha vazia depois dos dados. Resolve problema da coluna OBS e Problema que os dados são copiados na linha errada
 numRows = Range("A" & Rows.Count).End(xlUp).Offset(1, 0).Row
@@ -159,6 +165,10 @@ For i = numRowsCopy + 1 To 0 Step -1
  End If
 Next
 
+Application.ScreenUpdating = True
+
+MsgBox "Dados da planilha " & strFileName & " foram copiados", vbInformation, "Sucesso"
+
 End Sub
 
 'Troca um numero por uma letra equivalente a uma coluna
@@ -167,5 +177,7 @@ Function Col_Letter(lngCol As Long) As String
     vArr = Split(Cells(1, lngCol).Address(True, False), "$")
     Col_Letter = vArr(0)
 End Function
+
+
 
 
