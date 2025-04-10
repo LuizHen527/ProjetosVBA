@@ -9,11 +9,16 @@ Sub RelatorioFerramentas()
         'Deve ficar assim: Mar_3_25
     
         'Antes precisa corrigir os nomes
+        
+        'Capturar erros:
+            'Erro de rodar sem tem o historico aberto
+            'Erro de rodar sem ter colocado nome certo na planilha
     
-    Dim data() As Variant, processedData As Variant
+    Dim data() As Variant, processedData As Variant, perfil As Variant
     Dim fileName As String, arrDate() As String, inicialRange() As String, rowAddress As String
-    Dim numRows As Integer, colInt As Integer, rowInt As Integer, copyInt As Integer, x As Integer, numRowsArray As Integer
+    Dim numRows As Integer, colInt As Integer, rowInt As Integer, copyInt As Integer, x As Integer, numRowsArray As Integer, columnIcr As Integer
     
+    columnIcr = 3
     numRowsArray = 0
     x = 2
     fileName = ThisWorkbook.Name
@@ -120,23 +125,27 @@ NextIteration:
     Range("A1") = "PERFIL"
     Range("B1") = "Nº"
     
-    With Range("A1:B150")
+    With Range("A1:B250")
         .Columns.AutoFit
         .HorizontalAlignment = xlCenter
         .Font.Bold = True
         .Font.Size = 12
     End With
     
+    Range("B1:B250").ColumnWidth = 5.29
     Range("A1").Font.Size = 16
     Range("B1").Font.Size = 10
+    
+    '---- Fazer com que os nomes sejam colados seguindo a ordem da empresa que ele pertence ----
     
 '------------------------- PROCESSA OS DADOS -------------------------
     
     'Verifica se nos perfis do mesmo dia tem algum perfil com o mesmo nome
     'Se tiver ele soma valores de Prod., Talão e Ponta
     'No fim desse loop tenho todos os necessarios para fazer a planilha
+    ReDim processedData(250, 6)
     For rowInt = 1 To numRows
-        ReDim processedData(rowInt, 6)
+        
         
         For copyInt = 1 To rowInt - 1
         
@@ -194,15 +203,96 @@ NextIt:
     
 '------------------------- COLOCANDO DADOS DE CADA DIA -------------------------
 
+    'Loop percorre cada data do array
     For rowInt = 0 To numRowsArray
-    
-        For copyInt = 1 To rowInt - 1
         
-            If (processedData(rowInt, 0) = processedData(copyInt, 0)) Then
+        If Not IsEmpty(processedData(rowInt, 0)) Then
+        
+            'Loop que compara a data com as que já foram copiadas
+            For copyInt = 0 To rowInt - 1
+                
+                'Se a data for igual a uma que ja foi copiada
+                If (processedData(rowInt, 0) = processedData(copyInt, 0)) Then
+                    
+                    'Percorre os nomes de perfis
+                    For Each perfil In Range("A2", "A" & numRows)
+                    
+                        'Os valores são colocados na linha com o mesmo nome e numero
+                        If (perfil.Value = processedData(rowInt, 1)) And _
+                        (Cells(perfil.Row, perfil.Column + 1) = processedData(rowInt, 2)) Then
+                        
+                            Debug.Print processedData(rowInt, 1) & perfil.Row
+                            
+                            Cells(perfil.Row, columnIcr + 1) = Cells(perfil.Row, columnIcr + 1) + processedData(rowInt, 4)
+                            
+                            GoTo NextDate
+                        End If
+                    Next perfil
+                    
+                    
+                End If
+                
+                columnIcr = columnIcr + 3
+            Next copyInt
             
-            End If
-        Next copyInt
-    
+            'Incere coluna e dados
+            Cells(1, columnIcr) = "Furos"
+            Cells(1, columnIcr + 1) = Format(processedData(rowInt, 0), "dd/mmm")
+            Cells(1, columnIcr + 2) = "Grs/MT"
+            
+            '-------- STYLE --------
+            
+            'Estiliza coluna de furos
+            With Cells(1, columnIcr)
+                .ColumnWidth = 5.43
+                .Font.Size = 10
+                .Font.Color = RGB(0, 112, 192)
+                .Font.Bold = True
+                .HorizontalAlignment = xlCenter
+                .VerticalAlignment = xlCenter
+            End With
+            
+            'Estiliza coluna de data
+            With Cells(1, columnIcr + 1)
+                .ColumnWidth = 5.43
+                .Font.Size = 9
+                .Font.Bold = True
+                .HorizontalAlignment = xlCenter
+                .VerticalAlignment = xlCenter
+            End With
+            
+            'Estiliza coluna de Grs/MT
+            With Cells(1, columnIcr + 2)
+                .ColumnWidth = 5.43
+                .Font.Size = 10
+                .Font.Color = RGB(255, 0, 0)
+                .Font.Bold = True
+                .HorizontalAlignment = xlCenter
+                .VerticalAlignment = xlCenter
+            End With
+            
+            '-------- INCERIR DADOS --------
+            
+            'Percorre os nomes de perfis
+            For Each perfil In Range("A2", "A" & numRows)
+            
+                'Os valores são colocados na linha com o mesmo nome e numero
+                If (perfil.Value = processedData(rowInt, 1)) And _
+                (Cells(perfil.Row, perfil.Column + 1) = processedData(rowInt, 2)) Then
+                
+                    Debug.Print processedData(rowInt, 1) & perfil.Row
+                    
+                    Cells(perfil.Row, columnIcr + 1) = Cells(perfil.Row, columnIcr + 1) + processedData(rowInt, 4)
+                    
+                    GoTo NextDate
+                End If
+            Next perfil
+            
+         
+NextDate:
+            
+        End If
+        
     Next rowInt
     
 End Sub
