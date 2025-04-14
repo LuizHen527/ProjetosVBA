@@ -15,12 +15,12 @@ Sub RelatorioFerramentas()
             'Erro de rodar sem ter colocado nome certo na planilha
     
     Dim data() As Variant, processedData As Variant, perfil As Variant
-    Dim fileName As String, arrDate() As String, inicialRange() As String, rowAddress As String, empresas() As String, nome As Variant, empresa As Variant
+    Dim fileName As String, arrDate() As String, inicialRange() As String, rowAddress As String, addressPerfilSoma As String, empresas() As String, nome As Variant, empresa As Variant
     Dim numRows As Integer, colInt As Integer, rowInt As Integer, copyInt As Integer, x As Integer, numRowsArray As Integer, columnIcr As Integer, numRowsNames As Integer
     
     '---- Inicializando variaveis ----
     
-    columnIcr = 3
+    columnIcr = 4
     numRowsArray = 0
     x = 2
     fileName = ThisWorkbook.Name
@@ -138,7 +138,7 @@ nextName:
         
              For copyInt = 1 To rowInt - 1
             
-                'Verifica se o nome já foi copiado
+                'Verifica se o nome já foi copiado. Confere nome e numero do perfil
                 If (data(rowInt, 1) = data(copyInt, 1)) And (data(rowInt, 2) = data(copyInt, 2)) Then
                     
                     'Pula o nome
@@ -169,7 +169,7 @@ NextIteration:
     Range("C1") = "EMPRESA"
     
     With Range("A1:A250")
-        .Columns.AutoFit
+        .ColumnWidth = 42
         .HorizontalAlignment = xlCenter
         .Font.Bold = True
         .Font.Size = 12
@@ -279,7 +279,7 @@ NextIt:
                         If (perfil.Value = processedData(rowInt, 1)) And _
                         (Cells(perfil.Row, perfil.Column + 1) = processedData(rowInt, 2)) Then
                         
-                            Debug.Print processedData(rowInt, 1) & perfil.Row
+                            'Debug.Print processedData(rowInt, 1) & perfil.Row
                             
                             Cells(perfil.Row, columnIcr + 1) = processedData(rowInt, 4)
                             
@@ -292,7 +292,9 @@ NextIt:
                 
             Next copyInt
             
+            'Se for o primeiro item ele não entra no if
             If Not rowInt = 0 Then
+                'Se a data for diferente da anterior ele incrementa
                 If Not (processedData(rowInt, 0) = processedData(rowInt - 1, 0)) Then
                     columnIcr = columnIcr + 3
                 End If
@@ -360,4 +362,28 @@ NextDate:
         
     Next rowInt
     
+'------------------------- COLUNA DA SOMA DA PRODUÇÃO DE CADA DIA -------------------------
+    
+    'Colar titulo
+    'Colar formula na primeira linha
+    'Descobrir quantas linhas tem
+    'Colar ate a quantidade de linhas
+    'Estilizar coluna
+    
+    addressPerfilSoma = Cells(1, Columns.Count).End(xlToLeft)
+    
+    Cells(1, Columns.Count).End(xlToLeft).Offset(0, 1) = "TTL PERFIL"
+    
+    Cells(1, Columns.Count).End(xlToLeft).Offset(1, 0).Formula = "=E2+H2+K2+N2+Q2+T2+W2+Z2+AC2+AF2+AI2+AL2+AO2+AR2+AU2+AX2+BA2+BD2+BG2+BJ2+BM2+BP2+BS2+BV2+BY2+CB2+CE2+CH2+CK2+CN2+CQ2+CT2"
+    
+    Cells(1, Columns.Count).End(xlToLeft).Offset(1, 0).Select
+    
+    Selection.AutoFill Destination:=Range("Cells(1, Columns.Count).End(xlToLeft).Offset(1, 0).Address", "Col_Letter(Cells(1, Columns.Count).End(xlToLeft).Offset(1, 0).Column)" & "52"), Type:=xlFillDefault
+    
 End Sub
+
+Function Col_Letter(lngCol As Long) As String
+    Dim vArr
+    vArr = Split(Cells(1, lngCol).Address(True, False), "$")
+    Col_Letter = vArr(0)
+End Function
