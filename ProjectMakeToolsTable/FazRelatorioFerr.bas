@@ -15,16 +15,26 @@ Sub RelatorioFerramentas()
             'Erro de rodar sem ter colocado nome certo na planilha
     
     Dim data() As Variant, processedData As Variant, perfil As Variant
-    Dim fileName As String, arrDate() As String, inicialRange() As String, rowAddress As String
-    Dim numRows As Integer, colInt As Integer, rowInt As Integer, copyInt As Integer, x As Integer, numRowsArray As Integer, columnIcr As Integer
+    Dim fileName As String, arrDate() As String, inicialRange() As String, rowAddress As String, empresas() As String, nome As Variant, empresa As Variant
+    Dim numRows As Integer, colInt As Integer, rowInt As Integer, copyInt As Integer, x As Integer, numRowsArray As Integer, columnIcr As Integer, numRowsNames As Integer
+    
+    '---- Inicializando variaveis ----
     
     columnIcr = 3
     numRowsArray = 0
     x = 2
     fileName = ThisWorkbook.Name
     arrDate = Split(ActiveSheet.Name, "_")
+    numRowsNames = Range("C4", "C" & Cells(Rows.Count, 1).End(xlUp).Row).Rows.Count
+    ReDim empresas(5)
+    empresas() = Split("MOLDUCOLOR,ALUMITEC,POLLUX,ALHENA,EXTERNO", ",")
+    
     
     Workbooks("HISTÓRICO PRODUÇÃO 2022-2024_V5.xlsm").Activate
+    
+    Worksheets("02_Correção Nomes").Select
+    numRowsNames = Range("C4", "C" & Cells(Rows.Count, 1).End(xlUp).Row).Rows.Count
+    
     Worksheets("01_Base").Select
     
     'Tira filtros aplicados
@@ -42,7 +52,7 @@ Sub RelatorioFerramentas()
     'Endereço da ultima celula da coluna A
     inicialRange = Split(Range("A" & Cells(Rows.Count, 1).End(xlUp).Row).Address, "$")
     
-    ReDim data(numRows, 6) As Variant
+    ReDim data(numRows, 7) As Variant
     
     'Salva dados da coluna DATA
     For rowInt = 1 To numRows
@@ -52,10 +62,31 @@ Sub RelatorioFerramentas()
     Next rowInt
     
     'Salva dados da coluna NOME CORRIGIDO
+    
+    
     For rowInt = 1 To numRows
         rowAddress = (inicialRange(2) - numRows) + rowInt
         
         data(rowInt, 1) = Range("C" & rowAddress).Value
+        
+        'Fazer loop que procura o nome corrigido na planilha de ferramentas
+        'Quando achar ele salva o nome do setor
+        Worksheets("02_Correção Nomes").Select
+        
+        'Salva nome da empresa
+        For Each nome In Range("C4", "C" & numRowsNames)
+            If data(rowInt, 1) = nome.Value Then
+                data(rowInt, 7) = Cells(nome.Row, 4).Value
+                
+                Debug.Print data(rowInt, 1) & " " & data(rowInt, 7)
+                
+                GoTo nextName
+            End If
+        Next nome
+        
+nextName:
+        Worksheets("01_Base").Select
+        
     Next rowInt
     
     'Salva dados da coluna Numero da peça(N)
@@ -93,6 +124,8 @@ Sub RelatorioFerramentas()
         data(rowInt, 6) = Range("Y" & rowAddress).Value
     Next rowInt
     
+    'Fazer for each que compara o nome corrigido com
+    
     '---- Fazer aqui um loop pra colocar nome da empresa no array tb ----
     
 '--------------------- MONTANDO COLUNA NOMES DE PERFIL ---------------------
@@ -100,41 +133,65 @@ Sub RelatorioFerramentas()
     Workbooks(fileName).Activate
     
     'Loop que passa por todos os nomes de perfis
-    For rowInt = 1 To numRows
-    
-         For copyInt = 1 To rowInt - 1
+    For Each empresa In empresas
+        For rowInt = 1 To numRows
         
-            'Verifica se o nome já foi copiado
-            If (data(rowInt, 1) = data(copyInt, 1)) And (data(rowInt, 2) = data(copyInt, 2)) Then
-
-                GoTo NextIteration
-            End If
-        Next copyInt
-    
+             For copyInt = 1 To rowInt - 1
+            
+                'Verifica se o nome já foi copiado
+                If (data(rowInt, 1) = data(copyInt, 1)) And (data(rowInt, 2) = data(copyInt, 2)) Then
+                    
+                    'Pula o nome
+                    GoTo NextIteration
+                End If
+            Next copyInt
         
-    Range("A" & x) = data(rowInt, 1)
-    Range("B" & x) = data(rowInt, 2)
-    
-    'Incrementa 1
-    x = x + 1
-       
+        'Verifica se é da empresa
+        If Not data(rowInt, 7) = empresa Then
+            GoTo NextIteration
+        End If
+        
+        Range("A" & x) = data(rowInt, 1)
+        Range("B" & x) = data(rowInt, 2)
+        Range("C" & x) = empresa
+        
+        'Incrementa 1
+        x = x + 1
+           
 NextIteration:
-    Next rowInt
+        Next rowInt
+    Next empresa
+
     
     'Estilo das colunas
     Range("A1") = "PERFIL"
     Range("B1") = "Nº"
+    Range("C1") = "EMPRESA"
     
-    With Range("A1:B250")
+    With Range("A1:A250")
         .Columns.AutoFit
         .HorizontalAlignment = xlCenter
         .Font.Bold = True
         .Font.Size = 12
     End With
     
-    Range("B1:B250").ColumnWidth = 5.29
-    Range("A1").Font.Size = 16
-    Range("B1").Font.Size = 10
+    With Range("B1:B250")
+        .ColumnWidth = 5.29
+        .HorizontalAlignment = xlCenter
+        .Font.Bold = True
+        .Font.Size = 12
+    End With
+    
+    With Range("C1:C250")
+        .ColumnWidth = 17
+        .HorizontalAlignment = xlCenter
+        .Font.Bold = True
+        .Font.Size = 12
+    End With
+    
+    Range("A1").Font.Size = 14
+    Range("B1").Font.Size = 14
+    Range("C1").Font.Size = 14
     
     '---- Fazer com que os nomes sejam colados seguindo a ordem da empresa que ele pertence ----
     
@@ -150,26 +207,27 @@ NextIteration:
         For copyInt = 1 To rowInt - 1
         
             'Verifica se o nome já foi copiado
-            If (data(rowInt, 1) = data(copyInt, 1)) And _
-                (data(rowInt, 0) = data(copyInt, 0)) And _
-                (data(rowInt, 2) = data(copyInt, 2)) _
+            If (data(rowInt, 1) = processedData(copyInt, 1)) And _
+                (data(rowInt, 0) = processedData(copyInt, 0)) And _
+                (data(rowInt, 2) = processedData(copyInt, 2)) _
             Then
+            
                 'Soma a produção bruta
-                data(copyInt, 4) = data(copyInt, 4) + data(rowInt, 4)
+                processedData(copyInt, 4) = processedData(copyInt, 4) + data(rowInt, 4)
                 
                 'Soma Talão
-                data(copyInt, 5) = data(copyInt, 5) + data(rowInt, 5)
+                processedData(copyInt, 5) = processedData(copyInt, 5) + data(rowInt, 5)
                 
                 'Soma Ponta
-                data(copyInt, 6) = data(copyInt, 6) + data(rowInt, 6)
+                processedData(copyInt, 6) = processedData(copyInt, 6) + data(rowInt, 6)
                 
-                'Debug.Print "Somou " & data(rowInt, 0) & " " & data(rowInt, 1) & " " & data(copyInt, 4)
+                'Debug.Print "Somou " & data(rowInt, 1) & " " & data(rowInt, 4) & " " & processedData(copyInt, 1) & " "; processedData(copyInt, 4)
+                'Debug.Print "Somou " & processedData(copyInt, 0) & " " & processedData(copyInt, 1) & " " & processedData(copyInt, 4)
                 
                 GoTo NextIt
             End If
         Next copyInt
         
-        'Debug.Print "Copiou " & data(rowInt, 0) & " " & data(rowInt, 1) & " " & data(copyInt, 4)
     
         'Salva Data
         processedData(numRowsArray, 0) = data(rowInt, 0)
@@ -223,7 +281,7 @@ NextIt:
                         
                             Debug.Print processedData(rowInt, 1) & perfil.Row
                             
-                            Cells(perfil.Row, columnIcr + 1) = Cells(perfil.Row, columnIcr + 1) + processedData(rowInt, 4)
+                            Cells(perfil.Row, columnIcr + 1) = processedData(rowInt, 4)
                             
                             GoTo NextDate
                         End If
@@ -232,8 +290,15 @@ NextIt:
                     
                 End If
                 
-                columnIcr = columnIcr + 3
             Next copyInt
+            
+            If Not rowInt = 0 Then
+                If Not (processedData(rowInt, 0) = processedData(rowInt - 1, 0)) Then
+                    columnIcr = columnIcr + 3
+                End If
+            End If
+            
+            
             
             'Incere coluna e dados
             Cells(1, columnIcr) = "Furos"
@@ -280,15 +345,15 @@ NextIt:
                 If (perfil.Value = processedData(rowInt, 1)) And _
                 (Cells(perfil.Row, perfil.Column + 1) = processedData(rowInt, 2)) Then
                 
-                    Debug.Print processedData(rowInt, 1) & perfil.Row
+                    'Debug.Print processedData(rowInt, 1) & perfil.Row
                     
-                    Cells(perfil.Row, columnIcr + 1) = Cells(perfil.Row, columnIcr + 1) + processedData(rowInt, 4)
+                    Cells(perfil.Row, columnIcr + 1) = processedData(rowInt, 4)
                     
                     GoTo NextDate
                 End If
             Next perfil
             
-         
+            
 NextDate:
             
         End If
