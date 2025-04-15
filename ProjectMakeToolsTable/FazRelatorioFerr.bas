@@ -15,19 +15,25 @@ Sub RelatorioFerramentas()
             'Erro de rodar sem ter colocado nome certo na planilha
     
     Dim data() As Variant, processedData As Variant, perfil As Variant
-    Dim fileName As String, arrDate() As String, inicialRange() As String, rowAddress As String, addressPerfilSoma As String, empresas() As String, nome As Variant, empresa As Variant
-    Dim numRows As Integer, colInt As Integer, rowInt As Integer, copyInt As Integer, x As Integer, numRowsArray As Integer, columnIcr As Integer, numRowsNames As Integer
+    Dim fileName As String, arrDate() As String, inicialRange() As String, rowAddress As String, strArray() As String, nome As Variant, empresa As Variant
+    Dim numRows As Integer, colInt As Integer, rowInt As Integer, copyInt As Integer, x As Integer, numRowsArray As Integer, columnIcr As Integer, numRowsNames As Integer, numPerfis As Integer
+    
+    Application.ScreenUpdating = True
     
     '---- Inicializando variaveis ----
     
     columnIcr = 4
     numRowsArray = 0
     x = 2
+    
     fileName = ThisWorkbook.Name
     arrDate = Split(ActiveSheet.Name, "_")
+    
+    'Nomes corrigidos no histórico
     numRowsNames = Range("C4", "C" & Cells(Rows.Count, 1).End(xlUp).Row).Rows.Count
-    ReDim empresas(5)
-    empresas() = Split("MOLDUCOLOR,ALUMITEC,POLLUX,ALHENA,EXTERNO", ",")
+    
+    ReDim strArray(5)
+    strArray() = Split("MOLDUCOLOR,ALUMITEC,POLLUX,ALHENA,EXTERNO", ",")
     
     
     Workbooks("HISTÓRICO PRODUÇÃO 2022-2024_V5.xlsm").Activate
@@ -133,7 +139,7 @@ nextName:
     Workbooks(fileName).Activate
     
     'Loop que passa por todos os nomes de perfis
-    For Each empresa In empresas
+    For Each empresa In strArray
         For rowInt = 1 To numRows
         
              For copyInt = 1 To rowInt - 1
@@ -161,28 +167,30 @@ nextName:
 NextIteration:
         Next rowInt
     Next empresa
-
+    
+    'Salva o numero de nomes de perfil
+    numPerfis = Range("A1", "A" & Cells(Rows.Count, 1).End(xlUp).Row).Count
     
     'Estilo das colunas
     Range("A1") = "PERFIL"
     Range("B1") = "Nº"
     Range("C1") = "EMPRESA"
     
-    With Range("A1:A250")
+    With Range("A1:A" & numPerfis)
         .ColumnWidth = 42
         .HorizontalAlignment = xlCenter
         .Font.Bold = True
         .Font.Size = 12
     End With
     
-    With Range("B1:B250")
+    With Range("B1:B" & numPerfis)
         .ColumnWidth = 5.29
         .HorizontalAlignment = xlCenter
         .Font.Bold = True
         .Font.Size = 12
     End With
     
-    With Range("C1:C250")
+    With Range("C1:C" & numPerfis)
         .ColumnWidth = 17
         .HorizontalAlignment = xlCenter
         .Font.Bold = True
@@ -364,21 +372,45 @@ NextDate:
     
 '------------------------- COLUNA DA SOMA DA PRODUÇÃO DE CADA DIA -------------------------
     
-    'Colar titulo
-    'Colar formula na primeira linha
-    'Descobrir quantas linhas tem
-    'Colar ate a quantidade de linhas
-    'Estilizar coluna
-    
-    addressPerfilSoma = Cells(1, Columns.Count).End(xlToLeft)
-    
     Cells(1, Columns.Count).End(xlToLeft).Offset(0, 1) = "TTL PERFIL"
     
     Cells(1, Columns.Count).End(xlToLeft).Offset(1, 0).Formula = "=E2+H2+K2+N2+Q2+T2+W2+Z2+AC2+AF2+AI2+AL2+AO2+AR2+AU2+AX2+BA2+BD2+BG2+BJ2+BM2+BP2+BS2+BV2+BY2+CB2+CE2+CH2+CK2+CN2+CQ2+CT2"
     
     Cells(1, Columns.Count).End(xlToLeft).Offset(1, 0).Select
     
-    Selection.AutoFill Destination:=Range("Cells(1, Columns.Count).End(xlToLeft).Offset(1, 0).Address", "Col_Letter(Cells(1, Columns.Count).End(xlToLeft).Offset(1, 0).Column)" & "52"), Type:=xlFillDefault
+    Selection.AutoFill Destination:=Range(Cells(1, Columns.Count).End(xlToLeft).Offset(1, 0).Address, Col_Letter(Cells(1, Columns.Count).End(xlToLeft).Offset(1, 0).Column) & numPerfis), Type:=xlFillDefault
+    
+    
+    '-------- STYLE --------
+    With Range(Cells(1, Columns.Count).End(xlToLeft), Col_Letter(Cells(1, Columns.Count).End(xlToLeft).Column) & Cells(Rows.Count, 1).End(xlUp).Row)
+        .Font.Size = 12
+        .Font.Bold = True
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlCenter
+        .ColumnWidth = 11.43
+        .NumberFormat = "#,###"
+    End With
+    
+'------------------------- FAZER LINHAS DE TOTAIS -------------------------
+    
+    ReDim strArray(5)
+    strArray() = Split("TOTAL DO DIA,TOTAL TALÃO,TOTAL PONTA,TOTAL LÍQUIDO,PERDA TALÃO (%),PERDA PONTA (%)", ",")
+    
+    For x = 0 To 5
+        
+        Range("A" & Cells(Rows.Count, 1).End(xlUp).Offset(1, 0).Row, "C" & Cells(Rows.Count, 3).End(xlUp).Offset(1, 0).Row).Select
+
+        
+        Range("A" & Cells(Rows.Count, 1).End(xlUp).Offset(1, 0).Row, "C" & Cells(Rows.Count, 3).End(xlUp).Offset(1, 0).Row).Merge
+        
+        Range("A1").Select
+        
+        Cells(Rows.Count, 1).End(xlUp).Offset(1, 0) = strArray(x)
+    
+    Next x
+
+    
+    Application.ScreenUpdating = True
     
 End Sub
 
