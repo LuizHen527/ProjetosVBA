@@ -14,11 +14,11 @@ Sub RelatorioFerramentas()
             'Erro de rodar sem tem o historico aberto
             'Erro de rodar sem ter colocado nome certo na planilha
     
-    Dim data() As Variant, processedData As Variant, perfil As Variant
-    Dim fileName As String, arrDate() As String, inicialRange() As String, rowAddress As String, strArray() As String, nome As Variant, empresa As Variant
-    Dim numRows As Integer, colInt As Integer, rowInt As Integer, copyInt As Integer, x As Integer, numRowsArray As Integer, columnIcr As Integer, numRowsNames As Integer, numPerfis As Integer
+    Dim data() As Variant, processedData As Variant, perfil As Variant, somTalaoPonta() As Variant
+    Dim fileName As String, arrDate() As String, inicialRange() As String, rowAddress As String, strArray() As String, lastColTotais() As String, nome As Variant, empresa As Variant
+    Dim numRows As Integer, colInt As Integer, rowInt As Integer, copyInt As Integer, x As Integer, numRowsArray As Integer, columnIcr As Integer, numRowsNames As Integer, numPerfis As Integer, lastRowPerfis As Integer, iterador As Integer
     
-    Application.ScreenUpdating = True
+    Application.ScreenUpdating = False
     
     '---- Inicializando variaveis ----
     
@@ -84,7 +84,7 @@ Sub RelatorioFerramentas()
             If data(rowInt, 1) = nome.Value Then
                 data(rowInt, 7) = Cells(nome.Row, 4).Value
                 
-                Debug.Print data(rowInt, 1) & " " & data(rowInt, 7)
+                'Debug.Print data(rowInt, 1) & " " & data(rowInt, 7)
                 
                 GoTo nextName
             End If
@@ -208,9 +208,10 @@ NextIteration:
     'Verifica se nos perfis do mesmo dia tem algum perfil com o mesmo nome
     'Se tiver ele soma valores de Prod., Talão e Ponta
     'No fim desse loop tenho todos os necessarios para fazer a planilha
-    ReDim processedData(250, 6)
+    ReDim processedData(numRows, 6)
+    ReDim somTalaoPonta(numRows, 2)
+    
     For rowInt = 1 To numRows
-        
         
         For copyInt = 1 To rowInt - 1
         
@@ -235,7 +236,6 @@ NextIteration:
                 GoTo NextIt
             End If
         Next copyInt
-        
     
         'Salva Data
         processedData(numRowsArray, 0) = data(rowInt, 0)
@@ -259,7 +259,9 @@ NextIteration:
         processedData(numRowsArray, 6) = data(rowInt, 6)
         
         'Salva numero da linha
-        processedData(numRowsArray, 6) = data(rowInt, 6)
+        'processedData(numRowsArray, 6) = data(rowInt, 6)
+        
+        'Debug.Print numRowsArray & "" & processedData(numRowsArray, 0) & " Talão: " & processedData(numRowsArray, 5) & " Ponta: " & processedData(numRowsArray, 6)
         
         numRowsArray = numRowsArray + 1
         
@@ -372,7 +374,7 @@ NextDate:
     
 '------------------------- COLUNA DA SOMA DA PRODUÇÃO DE CADA DIA -------------------------
     
-    Cells(1, Columns.Count).End(xlToLeft).Offset(0, 1) = "TTL PERFIL"
+    Cells(1, Columns.Count).End(xlToLeft).Offset(0, 1) = "TOTAIS"
     
     Cells(1, Columns.Count).End(xlToLeft).Offset(1, 0).Formula = "=E2+H2+K2+N2+Q2+T2+W2+Z2+AC2+AF2+AI2+AL2+AO2+AR2+AU2+AX2+BA2+BD2+BG2+BJ2+BM2+BP2+BS2+BV2+BY2+CB2+CE2+CH2+CK2+CN2+CQ2+CT2"
     
@@ -392,23 +394,258 @@ NextDate:
     End With
     
 '------------------------- FAZER LINHAS DE TOTAIS -------------------------
-    
+    lastRowPerfis = Cells(Rows.Count, 1).End(xlUp).Offset(1, 0).Row
     ReDim strArray(5)
     strArray() = Split("TOTAL DO DIA,TOTAL TALÃO,TOTAL PONTA,TOTAL LÍQUIDO,PERDA TALÃO (%),PERDA PONTA (%)", ",")
     
     For x = 0 To 5
         
-        Range("A" & Cells(Rows.Count, 1).End(xlUp).Offset(1, 0).Row, "C" & Cells(Rows.Count, 3).End(xlUp).Offset(1, 0).Row).Select
-
-        
-        Range("A" & Cells(Rows.Count, 1).End(xlUp).Offset(1, 0).Row, "C" & Cells(Rows.Count, 3).End(xlUp).Offset(1, 0).Row).Merge
-        
-        Range("A1").Select
+        With Range("A" & lastRowPerfis + x, "C" & lastRowPerfis + x)
+            .Merge
+            .HorizontalAlignment = xlCenter
+            .VerticalAlignment = xlCenter
+            .Font.Bold = True
+            If strArray(x) = "TOTAL DO DIA" Or strArray(x) = "TOTAL LÍQUIDO" Then
+                .Interior.Color = RGB(255, 255, 102)
+            End If
+        End With
         
         Cells(Rows.Count, 1).End(xlUp).Offset(1, 0) = strArray(x)
     
     Next x
+    
+    
+'------------------------- FAZER FORMULAS DE TOTAIS -------------------------
 
+    ReDim lastColTotais(2)
+    lastColTotais() = Split(Cells(lastRowPerfis - 1, Cells(lastRowPerfis - 1, Columns.Count).End(xlToLeft).Column).Offset(1, -1).Address, "$")
+    
+    '------ TOTAL DO DIA ------
+    
+    'Aplica estilo e formula na primeira celula
+    With Range(Cells(Rows.Count, 1).End(xlUp).Offset(-5, 1), _
+    Cells(Rows.Count, 1).End(xlUp).Offset(-5, 3))
+    
+        .Merge
+        .Interior.Color = RGB(255, 255, 102)
+        .Font.Bold = True
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlCenter
+        .NumberFormat = "#,###"
+        .Font.Size = 12
+        .Formula = "=SUM(E2:E" & lastRowPerfis - 1 & ")"
+        
+    End With
+    
+    Cells(Rows.Count, 1).End(xlUp).Offset(-5, 1).Select
+    
+    Selection.AutoFill Destination:=Range(Cells(Rows.Count, 1).End(xlUp).Offset(-5, 1), Range(lastColTotais(1) & lastColTotais(2))), Type:=xlFillDefault
+    
+    '------ TOTAL TALÃO E PONTA ------
+    
+    iterador = 0
+    
+    'mescla celulas na linha do talão
+    With Range(Cells(Rows.Count, 1).End(xlUp).Offset(-4, 1), _
+    Cells(Rows.Count, 1).End(xlUp).Offset(-4, 3))
+    
+        .Merge
+        .Font.Bold = True
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlCenter
+        .NumberFormat = "#,###"
+        .Font.Size = 12
+        
+    End With
+    
+    Cells(Rows.Count, 1).End(xlUp).Offset(-4, 1).Select
+    
+    Selection.AutoFill Destination:=Range(Cells(Rows.Count, 1).End(xlUp).Offset(-4, 1), Range(lastColTotais(1) & lastColTotais(2) + 1)), Type:=xlFillDefault
+    
+    'mescla celulas na linha da ponta
+    
+    With Range(Cells(Rows.Count, 1).End(xlUp).Offset(-3, 1), _
+    Cells(Rows.Count, 1).End(xlUp).Offset(-3, 3))
+    
+        .Merge
+        .Font.Bold = True
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlCenter
+        .NumberFormat = "#,###"
+        .Font.Size = 12
+        
+    End With
+    
+    Cells(Rows.Count, 1).End(xlUp).Offset(-3, 1).Select
+    
+    Selection.AutoFill Destination:=Range(Cells(Rows.Count, 1).End(xlUp).Offset(-3, 1), Range(lastColTotais(1) & lastColTotais(2) + 2)), Type:=xlFillDefault
+    
+    
+    'Percorre o processedData() somando os talões e pontas com mesma data e colocando em um array
+    For x = 0 To numRowsArray
+        
+        'percorre dados que já foram salvos
+        For copyInt = 0 To x - 1
+            If processedData(x, 0) = somTalaoPonta(copyInt, 0) Then
+                'soma talão
+                somTalaoPonta(copyInt, 1) = somTalaoPonta(copyInt, 1) + processedData(x, 5)
+                
+                'soma ponta
+                somTalaoPonta(copyInt, 2) = somTalaoPonta(copyInt, 2) + processedData(x, 6)
+                
+                'Debug.Print somTalaoPonta(copyInt, 0) & vbTab & somTalaoPonta(copyInt, 1) & vbTab & somTalaoPonta(copyInt, 2) & vbTab & "SOMOU"
+                
+                GoTo NextX
+            End If
+        Next copyInt
+        
+        'data
+        somTalaoPonta(iterador, 0) = processedData(x, 0)
+        'talão
+        somTalaoPonta(iterador, 1) = processedData(x, 5)
+        'ponta
+        somTalaoPonta(iterador, 2) = processedData(x, 6)
+        
+        'Debug.Print somTalaoPonta(iterador, 0) & vbTab & somTalaoPonta(iterador, 1) & vbTab & somTalaoPonta(iterador, 2)
+        
+        iterador = iterador + 1
+NextX:
+    Next x
+    
+    colInt = 1
+    
+    'Loop que percorre as datas e cola
+    For x = 0 To iterador
+        'ponta
+        Cells(Rows.Count, 1).End(xlUp).Offset(-3, colInt) = somTalaoPonta(x, 2)
+        'talao
+        Cells(Rows.Count, 1).End(xlUp).Offset(-4, colInt) = somTalaoPonta(x, 1)
+        
+        colInt = colInt + 3
+    Next x
+    
+    '------ TOTAL LÍQUIDO ------
+    
+    'lastColTotais() = Split(Cells(lastRowPerfis - 1, Cells(lastRowPerfis - 1, Columns.Count).End(xlToLeft).Column).Offset(1, 0).Address, "$")
+    
+    With Range(Cells(Rows.Count, 1).End(xlUp).Offset(-2, 1), _
+    Cells(Rows.Count, 1).End(xlUp).Offset(-2, 3))
+    
+        .Merge
+        .Interior.Color = RGB(255, 255, 102)
+        .Font.Bold = True
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlCenter
+        .NumberFormat = "#,###"
+        .Font.Size = 12
+        .Formula = "=D" & Cells(Rows.Count, 1).End(xlUp).Offset(-5, 1).Row _
+                    & "-D" & Cells(Rows.Count, 1).End(xlUp).Offset(-4, 1).Row _
+                    & "-D" & Cells(Rows.Count, 1).End(xlUp).Offset(-3, 1).Row
+        
+    End With
+    
+    Cells(Rows.Count, 1).End(xlUp).Offset(-2, 1).Select
+    
+    Selection.AutoFill Destination:=Range(Cells(Rows.Count, 1).End(xlUp).Offset(-2, 1), Range(lastColTotais(1) & lastColTotais(2) + 3)), Type:=xlFillDefault
+    
+    
+    '------ PERDA TALÃO(%) ------
+    
+    With Range(Cells(Rows.Count, 1).End(xlUp).Offset(-1, 1), _
+    Cells(Rows.Count, 1).End(xlUp).Offset(-1, 3))
+    
+        .Merge
+        '.Interior.Color = RGB(255, 255, 102)
+        .Font.Bold = True
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlCenter
+        .NumberFormat = "0%"
+        .Font.Size = 12
+        .Formula = "=(D" & Cells(Rows.Count, 1).End(xlUp).Offset(-4, 1).Row _
+                    & ")/D" & Cells(Rows.Count, 1).End(xlUp).Offset(-5, 1).Row
+        
+    End With
+    
+    Cells(Rows.Count, 1).End(xlUp).Offset(-1, 1).Select
+    
+    Selection.AutoFill Destination:=Range(Cells(Rows.Count, 1).End(xlUp).Offset(-1, 1), Range(lastColTotais(1) & lastColTotais(2) + 4)), Type:=xlFillDefault
+    
+    '------ PERDA PONTA(%) ------
+    
+    With Range(Cells(Rows.Count, 1).End(xlUp).Offset(0, 1), _
+    Cells(Rows.Count, 1).End(xlUp).Offset(0, 3))
+    
+        .Merge
+        '.Interior.Color = RGB(255, 255, 102)
+        .Font.Bold = True
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlCenter
+        .NumberFormat = "0%"
+        .Font.Size = 12
+        .Formula = "=(D" & Cells(Rows.Count, 1).End(xlUp).Offset(-3, 1).Row _
+                    & ")/D" & Cells(Rows.Count, 1).End(xlUp).Offset(-5, 1).Row
+        
+    End With
+    
+    Cells(Rows.Count, 1).End(xlUp).Offset(0, 1).Select
+    
+    Selection.AutoFill Destination:=Range(Cells(Rows.Count, 1).End(xlUp).Offset(0, 1), Range(lastColTotais(1) & lastColTotais(2) + 5)), Type:=xlFillDefault
+    
+'------------------------- FAZER FORMULAS DE TOTAIS -------------------------
+    
+    '------ SOMA DE TOTAIS DO DIA ------
+    With Cells(lastRowPerfis - 1, Cells(lastRowPerfis - 1, Columns.Count).End(xlToLeft).Column).Offset(1, 0)
+        .Interior.Color = RGB(255, 255, 102)
+        .Font.Bold = True
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlCenter
+        .NumberFormat = "#,###"
+        .Font.Size = 12
+        .Formula = "=SUM(D" & lastRowPerfis & ":" & Cells(lastRowPerfis - 1, Cells(lastRowPerfis, Columns.Count).End(xlToLeft).Column).Offset(1, 2).Address & ")"
+    End With
+    
+    '------ SOMA DE TOTAIS DE TALÃO ------
+    With Cells(lastRowPerfis + 1, Cells(lastRowPerfis + 1, Columns.Count).End(xlToLeft).Column)
+        .Font.Bold = True
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlCenter
+        .NumberFormat = "#,###"
+        .Font.Size = 12
+        .Formula = "=SUM(D" & lastRowPerfis + 1 & ":" & Cells(lastRowPerfis + 1, Cells(lastRowPerfis + 1, Columns.Count).End(xlToLeft).Column).Offset(0, -1).Address & ")"
+    End With
+    
+    '------ SOMA DE TOTAIS DE PONTA ------
+    With Cells(lastRowPerfis + 2, Cells(lastRowPerfis + 2, Columns.Count).End(xlToLeft).Column)
+        .Font.Bold = True
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlCenter
+        .NumberFormat = "#,###"
+        .Font.Size = 12
+        .Formula = "=SUM(D" & lastRowPerfis + 2 & ":" & Cells(lastRowPerfis + 2, Cells(lastRowPerfis + 2, Columns.Count).End(xlToLeft).Column).Offset(0, -1).Address & ")"
+    End With
+    
+    '------ SOMA DO TOTAL LÍQUIDO ------
+    With Cells(lastRowPerfis + 3, Cells(lastRowPerfis + 3, Columns.Count).End(xlToLeft).Column).Offset(0, 1)
+        .Interior.Color = RGB(255, 255, 102)
+        .Font.Bold = True
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlCenter
+        .NumberFormat = "#,###"
+        .Font.Size = 12
+        .Formula = "=" & Cells(lastRowPerfis, Cells(lastRowPerfis, Columns.Count).End(xlToLeft).Column).Address _
+                        & "-" & Cells(lastRowPerfis + 1, Cells(lastRowPerfis + 1, Columns.Count).End(xlToLeft).Column).Address _
+                        & "-" & Cells(lastRowPerfis + 2, Cells(lastRowPerfis + 2, Columns.Count).End(xlToLeft).Column).Address
+    End With
+    
+    '------ % TALÃO TOTAL ------
+    With Cells(lastRowPerfis + 4, Cells(lastRowPerfis + 4, Columns.Count).End(xlToLeft).Column).Offset(0, 1)
+        .Font.Bold = True
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlCenter
+        .NumberFormat = "#,###"
+        .Font.Size = 12
+        .Formula = ""
+    End With
     
     Application.ScreenUpdating = True
     
