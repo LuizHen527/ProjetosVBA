@@ -30,16 +30,17 @@ Sub RelatorioFerramentas()
     arrDate = Split(ActiveSheet.Name, "_")
     
     'Nomes corrigidos no histórico
-    numRowsNames = Range("C4", "C" & Cells(Rows.Count, 1).End(xlUp).Row).Rows.Count
+    numRowsNames = Range("C4", "C" & Cells(Rows.Count, 1).End(xlUp).row).Rows.Count
     
     ReDim strArray(5)
     strArray() = Split("MOLDUCOLOR,ALUMITEC,POLLUX,ALHENA,EXTERNO", ",")
     
-    
+    On Error GoTo msgAbrirHistorico
     Workbooks("HISTÓRICO PRODUÇÃO 2022-2024_V5.xlsm").Activate
+    On Error GoTo 0
     
     Worksheets("02_Correção Nomes").Select
-    numRowsNames = Range("C4", "C" & Cells(Rows.Count, 1).End(xlUp).Row).Rows.Count
+    numRowsNames = Range("C4", "C" & Cells(Rows.Count, 1).End(xlUp).row).Rows.Count
     
     Worksheets("01_Base").Select
     
@@ -47,16 +48,22 @@ Sub RelatorioFerramentas()
     ActiveWorkbook.Worksheets("01_Base").AutoFilter.Sort.SortFields.Clear
  
     'Filtra os dados da base pela data, de acordo com o nome da planilha(Ex:Mar_1_25)
+    On Error GoTo msgPlanilhaNomeErrado
     ActiveSheet.Range("$A$3:$BA$4805").AutoFilter Field:=1, Operator:= _
     xlFilterValues, Criteria2:=Array(1, arrDate(1) & "/10/20" & arrDate(2))
+    On Error GoTo 0
     
+'End Sub
+'
+'Sub RelatorioFerramentas_2()
+
 '------------------------- SALVANDO DADOS NO ARRAY -------------------------
     
     'Conta linha visiveis
-    numRows = Range("A3", "A" & Cells(Rows.Count, 1).End(xlUp).Row).Rows.SpecialCells(xlCellTypeVisible).Count - 1
+    numRows = Range("A3", "A" & Cells(Rows.Count, 1).End(xlUp).row).Rows.SpecialCells(xlCellTypeVisible).Count - 1
     
     'Endereço da ultima celula da coluna A
-    inicialRange = Split(Range("A" & Cells(Rows.Count, 1).End(xlUp).Row).Address, "$")
+    inicialRange = Split(Range("A" & Cells(Rows.Count, 1).End(xlUp).row).Address, "$")
     
     ReDim data(numRows, 8) As Variant
     
@@ -82,7 +89,7 @@ Sub RelatorioFerramentas()
         'Salva nome da empresa
         For Each nome In Range("C4", "C" & numRowsNames)
             If data(rowInt, 1) = nome.Value Then
-                data(rowInt, 7) = Cells(nome.Row, 4).Value
+                data(rowInt, 7) = Cells(nome.row, 4).Value
                 
                 'Debug.Print data(rowInt, 1) & " " & data(rowInt, 7)
                 
@@ -176,7 +183,7 @@ NextIteration:
     Next empresa
     
     'Salva o numero de nomes de perfil
-    numPerfis = Range("A1", "A" & Cells(Rows.Count, 1).End(xlUp).Row).Count
+    numPerfis = Range("A1", "A" & Cells(Rows.Count, 1).End(xlUp).row).Count
     
     'Estilo das colunas
     Range("A1") = "PERFIL"
@@ -297,14 +304,14 @@ NextIt:
                     
                         'Os valores são colocados na linha com o mesmo nome e numero
                         If (perfil.Value = processedData(rowInt, 1)) And _
-                        (Cells(perfil.Row, perfil.Column + 1) = processedData(rowInt, 2)) Then
+                        (Cells(perfil.row, perfil.Column + 1) = processedData(rowInt, 2)) Then
                         
                             'Debug.Print processedData(rowInt, 1) & perfil.Row
                             
                             'Produção bruta
-                            Cells(perfil.Row, columnIcr + 1) = processedData(rowInt, 4)
+                            Cells(perfil.row, columnIcr + 1) = processedData(rowInt, 4)
                             
-                            With Cells(perfil.Row, columnIcr + 1)
+                            With Cells(perfil.row, columnIcr + 1)
                                 .Font.Size = 12
                                 .Font.Bold = True
                                 .HorizontalAlignment = xlCenter
@@ -313,13 +320,13 @@ NextIt:
                             End With
                             
                             'Grs/MT
-                            Cells(perfil.Row, columnIcr + 2) = processedData(rowInt, 3)
+                            Cells(perfil.row, columnIcr + 2) = processedData(rowInt, 3)
                             
                             If IsEmpty(processedData(rowInt, 3)) Then
-                                Cells(perfil.Row, columnIcr + 2) = "Vazio"
+                                Cells(perfil.row, columnIcr + 2) = "Vazio"
                             End If
                             
-                            With Cells(perfil.Row, columnIcr + 2)
+                            With Cells(perfil.row, columnIcr + 2)
                                 .Font.Size = 12
                                 .Font.Bold = True
                                 .Font.Color = RGB(255, 0, 0)
@@ -329,9 +336,9 @@ NextIt:
                             End With
                             
                             'Furos
-                            Cells(perfil.Row, columnIcr) = processedData(rowInt, 7)
+                            Cells(perfil.row, columnIcr) = processedData(rowInt, 7)
                             
-                            With Cells(perfil.Row, columnIcr)
+                            With Cells(perfil.row, columnIcr)
                                 .Font.Size = 12
                                 .Font.Bold = True
                                 .Font.Color = RGB(255, 0, 0)
@@ -411,14 +418,14 @@ NextIt:
             
                 'Os valores são colocados na linha com o mesmo nome e numero
                 If (perfil.Value = processedData(rowInt, 1)) And _
-                (Cells(perfil.Row, perfil.Column + 1) = processedData(rowInt, 2)) Then
+                (Cells(perfil.row, perfil.Column + 1) = processedData(rowInt, 2)) Then
                 
                     'Debug.Print processedData(rowInt, 1) & perfil.Row
                     
                     'Produção bruta
-                    Cells(perfil.Row, columnIcr + 1) = processedData(rowInt, 4)
+                    Cells(perfil.row, columnIcr + 1) = processedData(rowInt, 4)
                     
-                    With Cells(perfil.Row, columnIcr + 1)
+                    With Cells(perfil.row, columnIcr + 1)
                         .Font.Size = 12
                         .Font.Bold = True
                         .HorizontalAlignment = xlCenter
@@ -427,13 +434,13 @@ NextIt:
                     End With
                     
                     'Grs/MT
-                    Cells(perfil.Row, columnIcr + 2) = processedData(rowInt, 3)
+                    Cells(perfil.row, columnIcr + 2) = processedData(rowInt, 3)
                     
                     If IsEmpty(processedData(rowInt, 3)) Then
-                        Cells(perfil.Row, columnIcr + 2) = "Vazio"
+                        Cells(perfil.row, columnIcr + 2) = "Vazio"
                     End If
                             
-                    With Cells(perfil.Row, columnIcr + 2)
+                    With Cells(perfil.row, columnIcr + 2)
                         .Font.Size = 12
                         .Font.Bold = True
                         .Font.Color = RGB(255, 0, 0)
@@ -443,9 +450,9 @@ NextIt:
                     End With
                     
                     'Furos
-                    Cells(perfil.Row, columnIcr) = processedData(rowInt, 7)
+                    Cells(perfil.row, columnIcr) = processedData(rowInt, 7)
                             
-                    With Cells(perfil.Row, columnIcr)
+                    With Cells(perfil.row, columnIcr)
                         .Font.Size = 12
                         .Font.Bold = True
                         .Font.Color = RGB(255, 0, 0)
@@ -476,7 +483,7 @@ NextDate:
     
     
     '-------- STYLE --------
-    With Range(Cells(1, Columns.Count).End(xlToLeft), Col_Letter(Cells(1, Columns.Count).End(xlToLeft).Column) & Cells(Rows.Count, 1).End(xlUp).Row)
+    With Range(Cells(1, Columns.Count).End(xlToLeft), Col_Letter(Cells(1, Columns.Count).End(xlToLeft).Column) & Cells(Rows.Count, 1).End(xlUp).row)
         .Font.Size = 12
         .Font.Bold = True
         .HorizontalAlignment = xlCenter
@@ -486,7 +493,7 @@ NextDate:
     End With
     
 '------------------------- FAZER LINHAS DE TOTAIS -------------------------
-    lastRowPerfis = Cells(Rows.Count, 1).End(xlUp).Offset(1, 0).Row
+    lastRowPerfis = Cells(Rows.Count, 1).End(xlUp).Offset(1, 0).row
     ReDim strArray(5)
     strArray() = Split("TOTAL DO DIA,TOTAL TALÃO,TOTAL PONTA,TOTAL LÍQUIDO,PERDA TALÃO (%),PERDA PONTA (%)", ",")
     
@@ -630,9 +637,9 @@ NextX:
         .VerticalAlignment = xlCenter
         .NumberFormat = "#,###"
         .Font.Size = 12
-        .Formula = "=D" & Cells(Rows.Count, 1).End(xlUp).Offset(-5, 1).Row _
-                    & "-D" & Cells(Rows.Count, 1).End(xlUp).Offset(-4, 1).Row _
-                    & "-D" & Cells(Rows.Count, 1).End(xlUp).Offset(-3, 1).Row
+        .Formula = "=D" & Cells(Rows.Count, 1).End(xlUp).Offset(-5, 1).row _
+                    & "-D" & Cells(Rows.Count, 1).End(xlUp).Offset(-4, 1).row _
+                    & "-D" & Cells(Rows.Count, 1).End(xlUp).Offset(-3, 1).row
         
     End With
     
@@ -653,8 +660,8 @@ NextX:
         .VerticalAlignment = xlCenter
         .NumberFormat = "0%"
         .Font.Size = 12
-        .Formula = "=(D" & Cells(Rows.Count, 1).End(xlUp).Offset(-4, 1).Row _
-                    & ")/D" & Cells(Rows.Count, 1).End(xlUp).Offset(-5, 1).Row
+        .Formula = "=(D" & Cells(Rows.Count, 1).End(xlUp).Offset(-4, 1).row _
+                    & ")/D" & Cells(Rows.Count, 1).End(xlUp).Offset(-5, 1).row
         
     End With
     
@@ -674,8 +681,8 @@ NextX:
         .VerticalAlignment = xlCenter
         .NumberFormat = "0%"
         .Font.Size = 12
-        .Formula = "=(D" & Cells(Rows.Count, 1).End(xlUp).Offset(-3, 1).Row _
-                    & ")/D" & Cells(Rows.Count, 1).End(xlUp).Offset(-5, 1).Row
+        .Formula = "=(D" & Cells(Rows.Count, 1).End(xlUp).Offset(-3, 1).row _
+                    & ")/D" & Cells(Rows.Count, 1).End(xlUp).Offset(-5, 1).row
         
     End With
     
@@ -754,31 +761,83 @@ NextX:
 '------------------------- FAZENDO BORDAS E CORES -------------------------
     
     
-    '------ Colocando cores ------
-    'Loop que passa pela coluna de empresas
-    'Verifica nome
-    'De acordo com o nome ele coloca uma cor na linha inteira
-    'Vou tentar fazer com for each range
+    '------ Colocando cores nas linhas de acordo com empresa ------
     
     For Each rng In Range("C2", Cells(lastRowPerfis - 1, 3))
-        
         Select Case rng.Value
+        
             Case "MOLDUCOLOR"
-                Range(Cells(rng.Row, 1), Cells(rng.Row, Cells(rng.Row, Columns.Count).End(xlToLeft).Column)).Interior.Color = RGB(199, 211, 227)
+                Range(Cells(rng.row, 1), Cells(rng.row, Cells(rng.row, Columns.Count).End(xlToLeft).Column)) _
+                .Interior.Color = RGB(199, 211, 227)
+                
             Case "ALUMITEC"
-                Range(Cells(rng.Row, 1), Cells(rng.Row, Cells(rng.Row, Columns.Count).End(xlToLeft).Column)).Interior.Color = RGB(236, 197, 243)
+                Range(Cells(rng.row, 1), Cells(rng.row, Cells(rng.row, Columns.Count).End(xlToLeft).Column)) _
+                .Interior.Color = RGB(236, 197, 243)
+                
             Case "POLLUX"
-                Range(Cells(rng.Row, 1), Cells(rng.Row, Cells(rng.Row, Columns.Count).End(xlToLeft).Column)).Interior.Color = RGB(205, 222, 172)
+                Range(Cells(rng.row, 1), Cells(rng.row, Cells(rng.row, Columns.Count).End(xlToLeft).Column)) _
+                .Interior.Color = RGB(205, 222, 172)
+                
             Case "EXTERNO"
-                Range(Cells(rng.Row, 1), Cells(rng.Row, Cells(rng.Row, Columns.Count).End(xlToLeft).Column)).Interior.Color = RGB(212, 211, 198)
+                Range(Cells(rng.row, 1), Cells(rng.row, Cells(rng.row, Columns.Count).End(xlToLeft).Column)) _
+                .Interior.Color = RGB(212, 211, 198)
+                
             Case "ALHENA"
-                Range(Cells(rng.Row, 1), Cells(rng.Row, Cells(rng.Row, Columns.Count).End(xlToLeft).Column)).Interior.Color = RGB(252, 213, 180)
+                Range(Cells(rng.row, 1), Cells(rng.row, Cells(rng.row, Columns.Count).End(xlToLeft).Column)) _
+                .Interior.Color = RGB(252, 213, 180)
+                
             Case Else
                 
         End Select
     Next rng
     
+    '------ Colocando bordas nas colunas perfil, N e Empresa ------
+    
+    With Range("A1", "C" & lastRowPerfis - 1)
+        .Borders(xlInsideHorizontal).Weight = xlThin
+        .Borders(xlInsideVertical).Weight = xlThin
+        .Borders(xlEdgeRight).Weight = xlThick
+        .Borders(xlEdgeLeft).Weight = xlThick
+    End With
+    
+    '------ Colocando bordas na coluna de totais ------
+    
+    With Range(Cells(1, Columns.Count).End(xlToLeft), Cells(lastRowPerfis - 1, Columns.Count).End(xlToLeft))
+        .Borders(xlInsideHorizontal).Weight = xlThin
+        .Borders(xlInsideVertical).Weight = xlThin
+        .Borders(xlEdgeRight).Weight = xlThick
+    End With
+    
+    '------ Colocando bordas no rodapé. Linhas de total. ------
+    
+    With Range("A" & lastRowPerfis, Cells(lastRowPerfis + 5, Columns.Count).End(xlToLeft))
+        .Borders(xlInsideHorizontal).Weight = xlThin
+        .Borders(xlInsideVertical).Weight = xlThick
+        .Borders(xlEdgeTop).Weight = xlMedium
+        .Borders(xlEdgeBottom).Weight = xlMedium
+        .Borders(xlEdgeRight).Weight = xlThick
+        .Borders(xlEdgeLeft).Weight = xlThick
+    End With
+    
+    '------ Colocando bordas no cabeçalho ------
+    
+    With Range("a1", Cells(1, Columns.Count).End(xlToLeft))
+        .Borders(xlEdgeBottom).Weight = xlMedium
+    End With
+    
     Application.ScreenUpdating = True
+    
+'------------------------- ERROR HANDLING -------------------------
+
+    Exit Sub
+    
+msgAbrirHistorico:
+    MsgBox "Abra a planilha: HISTÓRICO PRODUÇÃO 2022-2024_V5.xlsm", vbOKOnly + vbExclamation, "Sem base de dados"
+    
+msgPlanilhaNomeErrado:
+    MsgBox "Coloque o nome da tabela dessa forma:" & vbNewLine & vbNewLine & "Mes_Dia do mes_Ultimos dois digitos do ano" _
+     & vbNewLine & vbNewLine & "Deve ficar assim:" & vbNewLine & "Fev_2_24" & vbNewLine & vbNewLine & _
+     "É importante colocar os underlines(_).", vbOKOnly + vbExclamation, "Nome da tabela incorreto"
     
 End Sub
 
