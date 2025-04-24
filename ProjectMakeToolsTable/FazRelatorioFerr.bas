@@ -16,7 +16,8 @@ Sub RelatorioFerramentas()
     
     Dim data() As Variant, processedData As Variant, perfil As Variant, somTalaoPonta() As Variant, rng As Range
     Dim fileName As String, arrDate() As String, inicialRange() As String, rowAddress As String, strArray() As String, lastColTotais() As String, nome As Variant, empresa As Variant
-    Dim numRows As Integer, colInt As Integer, rowInt As Integer, copyInt As Integer, x As Integer, numRowsArray As Integer, columnIcr As Integer, numRowsNames As Integer, numPerfis As Integer, lastRowPerfis As Integer, iterador As Integer
+    Dim numRows As Integer, colInt As Integer, rowInt As Integer, copyInt As Integer, x As Integer, numRowsArray As Integer, columnIcr As Integer, numRowsNames As Integer, _
+    numPerfis As Integer, lastRowPerfis As Integer, iterador As Integer, moldRowSum As Integer, alumRowSum As Integer, pollRowSum As Integer, extRowSum As Integer, alhRowSum As Integer
     
     Application.ScreenUpdating = False
     
@@ -26,7 +27,7 @@ Sub RelatorioFerramentas()
     numRowsArray = 0
     x = 2
     
-    fileName = ThisWorkbook.Name
+    fileName = ActiveWorkbook.Name
     arrDate = Split(ActiveSheet.Name, "_")
     
     'Nomes corrigidos no histórico
@@ -50,7 +51,7 @@ Sub RelatorioFerramentas()
     'Filtra os dados da base pela data, de acordo com o nome da planilha(Ex:Mar_1_25)
     On Error GoTo msgPlanilhaNomeErrado
     ActiveSheet.Range("$A$3:$BA$4805").AutoFilter Field:=1, Operator:= _
-    xlFilterValues, Criteria2:=Array(1, arrDate(1) & "/10/20" & arrDate(2))
+    xlFilterValues, Criteria2:=Array(1, arrDate(1) & "/10/20" & arrDate(0))
     On Error GoTo 0
     
 'End Sub
@@ -769,22 +770,27 @@ NextX:
             Case "MOLDUCOLOR"
                 Range(Cells(rng.row, 1), Cells(rng.row, Cells(rng.row, Columns.Count).End(xlToLeft).Column)) _
                 .Interior.Color = RGB(199, 211, 227)
+                moldRowSum = moldRowSum + 1
                 
             Case "ALUMITEC"
                 Range(Cells(rng.row, 1), Cells(rng.row, Cells(rng.row, Columns.Count).End(xlToLeft).Column)) _
                 .Interior.Color = RGB(236, 197, 243)
+                alumRowSum = alumRowSum + 1
                 
             Case "POLLUX"
                 Range(Cells(rng.row, 1), Cells(rng.row, Cells(rng.row, Columns.Count).End(xlToLeft).Column)) _
                 .Interior.Color = RGB(205, 222, 172)
+                pollRowSum = pollRowSum + 1
                 
             Case "EXTERNO"
                 Range(Cells(rng.row, 1), Cells(rng.row, Cells(rng.row, Columns.Count).End(xlToLeft).Column)) _
                 .Interior.Color = RGB(212, 211, 198)
+                extRowSum = extRowSum + 1
                 
             Case "ALHENA"
                 Range(Cells(rng.row, 1), Cells(rng.row, Cells(rng.row, Columns.Count).End(xlToLeft).Column)) _
                 .Interior.Color = RGB(252, 213, 180)
+                alhRowSum = alhRowSum + 1
                 
             Case Else
                 
@@ -825,6 +831,84 @@ NextX:
         .Borders(xlEdgeBottom).Weight = xlMedium
     End With
     
+    '------ Filtrando perfis de A a Z pra cada empresa ------
+    
+    'Molducolor
+    If Not moldRowSum = 0 Then
+        With ActiveWorkbook.ActiveSheet.Sort
+            .SortFields.Clear
+            .SortFields.Add Key:=Range("A2"), _
+                SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+            .SetRange Range("A2", Cells(moldRowSum + 1, Columns.Count).End(xlToLeft))
+            .Header = xlNo
+            .MatchCase = False
+            .Orientation = xlTopToBottom
+            .SortMethod = xlPinYin
+            .Apply
+        End With
+    End If
+    
+    'Alumitec
+    If Not alumRowSum = 0 Then
+        With ActiveWorkbook.ActiveSheet.Sort
+            .SortFields.Clear
+            .SortFields.Add Key:=Range("A" & moldRowSum + 2), _
+                SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+            .SetRange Range("A" & moldRowSum + 2, Cells(moldRowSum + alumRowSum + 1, Columns.Count).End(xlToLeft))
+            .Header = xlNo
+            .MatchCase = False
+            .Orientation = xlTopToBottom
+            .SortMethod = xlPinYin
+            .Apply
+        End With
+    End If
+    
+    'Pollux
+    If Not pollRowSum = 0 Then
+        With ActiveWorkbook.ActiveSheet.Sort
+            .SortFields.Clear
+            .SortFields.Add Key:=Range("A" & moldRowSum + alumRowSum + 2), _
+                SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+            .SetRange Range("A" & moldRowSum + alumRowSum + 2, Cells(moldRowSum + alumRowSum + pollRowSum + 1, Columns.Count).End(xlToLeft))
+            .Header = xlNo
+            .MatchCase = False
+            .Orientation = xlTopToBottom
+            .SortMethod = xlPinYin
+            .Apply
+        End With
+    End If
+    
+    'Alhena
+    If Not alhRowSum = 0 Then
+        With ActiveWorkbook.ActiveSheet.Sort
+            .SortFields.Clear
+            .SortFields.Add Key:=Range("A" & moldRowSum + alumRowSum + pollRowSum + 2), _
+                SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+            .SetRange Range("A" & moldRowSum + alumRowSum + pollRowSum + 2, Cells(moldRowSum + alumRowSum + pollRowSum + alhRowSum + 1, Columns.Count).End(xlToLeft))
+            .Header = xlNo
+            .MatchCase = False
+            .Orientation = xlTopToBottom
+            .SortMethod = xlPinYin
+            .Apply
+        End With
+    End If
+    
+    'Externo
+    If Not extRowSum = 0 Then
+        With ActiveWorkbook.ActiveSheet.Sort
+            .SortFields.Clear
+            .SortFields.Add Key:=Range("A" & moldRowSum + alumRowSum + pollRowSum + alhRowSum + 2), _
+                SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+            .SetRange Range("A" & moldRowSum + alumRowSum + pollRowSum + alhRowSum + 2, Cells(moldRowSum + alumRowSum + pollRowSum + alhRowSum + extRowSum + 1, Columns.Count).End(xlToLeft))
+            .Header = xlNo
+            .MatchCase = False
+            .Orientation = xlTopToBottom
+            .SortMethod = xlPinYin
+            .Apply
+        End With
+    End If
+    
+    
     Application.ScreenUpdating = True
     
 '------------------------- ERROR HANDLING -------------------------
@@ -833,6 +917,8 @@ NextX:
     
 msgAbrirHistorico:
     MsgBox "Abra a planilha: HISTÓRICO PRODUÇÃO 2022-2024_V5.xlsm", vbOKOnly + vbExclamation, "Sem base de dados"
+    
+    Exit Sub
     
 msgPlanilhaNomeErrado:
     MsgBox "Coloque o nome da tabela dessa forma:" & vbNewLine & vbNewLine & "Mes_Dia do mes_Ultimos dois digitos do ano" _
@@ -846,3 +932,5 @@ Function Col_Letter(lngCol As Long) As String
     vArr = Split(Cells(1, lngCol).Address(True, False), "$")
     Col_Letter = vArr(0)
 End Function
+
+
