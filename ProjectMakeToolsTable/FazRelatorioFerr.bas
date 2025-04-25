@@ -3,16 +3,17 @@ Option Explicit
 
 Sub RelatorioFerramentas()
     'Ao usar a macro:
-        'deixe a planilha que você quer copiar selecionada
-        'a planilha precisa estar com esse formato de nome:
-        'Mes_Numero do mes_Utimos dois digitos do ano
-        'Deve ficar assim: Mar_3_25
-    
-        'Antes precisa corrigir os nomes
+        'C planilha que você quer copiar selecionada
         
-        'Capturar erros:
-            'Erro de rodar sem tem o historico aberto
-            'Erro de rodar sem ter colocado nome certo na planilha
+        'a planilha precisa estar com esse formato de nome:
+        'ano_mes = 24_03
+        
+        'ano: Deve ser os ultimos dois digitos. Exemplo para 2022: 22
+        'mes: Deve ser o numero do mes. Para abril: 04.
+        'Coloque o underline separando os dois
+    
+        'Se os nomes no Histórico de produção não estiver corrigido, ele
+        'vai ignorar aquela linha.
     
     Dim data() As Variant, processedData As Variant, perfil As Variant, somTalaoPonta() As Variant, rng As Range
     Dim fileName As String, arrDate() As String, inicialRange() As String, rowAddress As String, strArray() As String, lastColTotais() As String, nome As Variant, empresa As Variant
@@ -49,14 +50,17 @@ Sub RelatorioFerramentas()
     ActiveWorkbook.Worksheets("01_Base").AutoFilter.Sort.SortFields.Clear
  
     'Filtra os dados da base pela data, de acordo com o nome da planilha(Ex:Mar_1_25)
-    On Error GoTo msgPlanilhaNomeErrado
-    ActiveSheet.Range("$A$3:$BA$4805").AutoFilter Field:=1, Operator:= _
-    xlFilterValues, Criteria2:=Array(1, arrDate(1) & "/10/20" & arrDate(0))
-    On Error GoTo 0
+    'On Error GoTo msgPlanilhaNomeErrado
     
-'End Sub
-'
-'Sub RelatorioFerramentas_2()
+    'erro aqui
+    ActiveSheet.Range("$A$3:$BA$4805").AutoFilter Field:=1, Operator:= _
+    xlFilterValues, Criteria2:=Array(1, arrDate(1) & "/10/20" & arrDate(0)), Order:=xlAscending
+    
+    
+
+
+    
+    'On Error GoTo 0
 
 '------------------------- SALVANDO DADOS NO ARRAY -------------------------
     
@@ -80,8 +84,10 @@ Sub RelatorioFerramentas()
     
     For rowInt = 1 To numRows
         rowAddress = (inicialRange(2) - numRows) + rowInt
-        
+
+        On Error GoTo corrigirNome
         data(rowInt, 1) = Range("C" & rowAddress).Value
+        
         
         'Fazer loop que procura o nome corrigido na planilha de ferramentas
         'Quando achar ele salva o nome do setor
@@ -97,6 +103,7 @@ Sub RelatorioFerramentas()
                 GoTo nextName
             End If
         Next nome
+        On Error GoTo 0
         
 nextName:
         Worksheets("01_Base").Select
@@ -121,7 +128,11 @@ nextName:
     For rowInt = 1 To numRows
         rowAddress = (inicialRange(2) - numRows) + rowInt
         
-        data(rowInt, 4) = Range("Z" & rowAddress).Value
+        If IsNumeric(Range("Z" & rowAddress).Value) Then
+            data(rowInt, 4) = Range("Z" & rowAddress).Value
+        Else
+            data(rowInt, 4) = 1
+        End If
     Next rowInt
     
     'Salva dados da coluna Talão
@@ -237,7 +248,9 @@ NextIteration:
             Then
             
                 'Soma a produção bruta
+                If IsNumeric(data(rowInt, 4)) Then
                 processedData(copyInt, 4) = processedData(copyInt, 4) + data(rowInt, 4)
+                End If
                 
                 'Soma Talão
                 processedData(copyInt, 5) = processedData(copyInt, 5) + data(rowInt, 5)
@@ -249,7 +262,7 @@ NextIteration:
                 'Debug.Print "Somou " & processedData(copyInt, 0) & " " & processedData(copyInt, 1) & " " & processedData(copyInt, 4)
                 
                 GoTo NextIt
-            End If
+             End If
         Next copyInt
     
         'Salva Data
@@ -925,6 +938,11 @@ msgPlanilhaNomeErrado:
      & vbNewLine & vbNewLine & "Deve ficar assim:" & vbNewLine & "Fev_2_24" & vbNewLine & vbNewLine & _
      "É importante colocar os underlines(_).", vbOKOnly + vbExclamation, "Nome da tabela incorreto"
     
+    Exit Sub
+    
+corrigirNome:
+    MsgBox "Corrija os nomes na data que está querendo fazer a tabela ante de executar o programa." & vbNewLine & vbNewLine & _
+    "Na planilha HISTÓRICO PRODUÇÃO 2022-2024_V5, preencha todos os campos da coluna NOME CORRIGIDO", vbOKOnly + vbExclamation, "Nomes a ser corrigidos"
 End Sub
 
 Function Col_Letter(lngCol As Long) As String
@@ -933,4 +951,4 @@ Function Col_Letter(lngCol As Long) As String
     Col_Letter = vArr(0)
 End Function
 
-
+'a
