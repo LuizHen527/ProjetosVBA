@@ -331,21 +331,33 @@ NextIt:
                             'Debug.Print processedData(rowInt, 1) & perfil.Row
                             
                             'Produção bruta
-                            Cells(perfil.row, columnIcr + 1) = processedData(rowInt, 4)
-                            
-                            With Cells(perfil.row, columnIcr + 1)
+                            If IsEmpty(processedData(rowInt, 4)) Or processedData(rowInt, 4) = 0 Then
+                                Cells(perfil.row, columnIcr + 1) = 0
+                                
+                                With Cells(perfil.row, columnIcr + 1)
                                 .Font.Size = 12
                                 .Font.Bold = True
                                 .HorizontalAlignment = xlCenter
                                 .VerticalAlignment = xlCenter
-                                .NumberFormat = "#,###"
+                                .NumberFormat = 0
                             End With
-                            
+                            Else
+                                Cells(perfil.row, columnIcr + 1) = processedData(rowInt, 4)
+                                
+                                With Cells(perfil.row, columnIcr + 1)
+                                    .Font.Size = 12
+                                    .Font.Bold = True
+                                    .HorizontalAlignment = xlCenter
+                                    .VerticalAlignment = xlCenter
+                                    .NumberFormat = "#,###"
+                                End With
+                            End If
+
                             'Grs/MT
-                            Cells(perfil.row, columnIcr + 2) = processedData(rowInt, 3)
-                            
                             If IsEmpty(processedData(rowInt, 3)) Then
                                 Cells(perfil.row, columnIcr + 2) = "Vazio"
+                            Else
+                                Cells(perfil.row, columnIcr + 2) = processedData(rowInt, 3)
                             End If
                             
                             With Cells(perfil.row, columnIcr + 2)
@@ -358,7 +370,11 @@ NextIt:
                             End With
                             
                             'Furos
-                            Cells(perfil.row, columnIcr) = processedData(rowInt, 7)
+                            If IsEmpty(processedData(rowInt, 7)) Then
+                                Cells(perfil.row, columnIcr) = "Vazio"
+                            Else
+                                Cells(perfil.row, columnIcr) = processedData(rowInt, 4)
+                            End If
                             
                             With Cells(perfil.row, columnIcr)
                                 .Font.Size = 12
@@ -958,5 +974,3 @@ Function Col_Letter(lngCol As Long) As String
     vArr = Split(Cells(1, lngCol).Address(True, False), "$")
     Col_Letter = vArr(0)
 End Function
-
-'a
