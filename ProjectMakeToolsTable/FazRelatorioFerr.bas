@@ -16,7 +16,7 @@ Sub RelatorioFerramentas()
         'vai ignorar aquela linha.
     
     Dim data() As Variant, processedData As Variant, perfil As Variant, somTalaoPonta() As Variant, rng As Range
-    Dim fileName As String, arrDate() As String, inicialRange() As String, rowAddress As String, strArray() As String, lastColTotais() As String, nome As Variant, empresa As Variant
+    Dim fileName As String, arrDate() As String, inicialRange() As String, rowAddress As String, databaseName As String, strArray() As String, lastColTotais() As String, nome As Variant, empresa As Variant
     Dim numRows As Integer, colInt As Integer, rowInt As Integer, copyInt As Integer, x As Integer, numRowsArray As Integer, columnIcr As Integer, numRowsNames As Integer, _
     numPerfis As Integer, lastRowPerfis As Integer, iterador As Integer, moldRowSum As Integer, alumRowSum As Integer, pollRowSum As Integer, extRowSum As Integer, alhRowSum As Integer
     
@@ -28,6 +28,8 @@ Sub RelatorioFerramentas()
     numRowsArray = 0
     x = 2
     
+    databaseName = "HISTÓRICO PRODUÇÃO 2022-2024_V5.xlsm"
+    
     fileName = ActiveWorkbook.Name
     arrDate = Split(ActiveSheet.Name, "_")
     
@@ -38,7 +40,7 @@ Sub RelatorioFerramentas()
     strArray() = Split("MOLDUCOLOR,ALUMITEC,POLLUX,ALHENA,EXTERNO", ",")
     
     On Error GoTo msgAbrirHistorico
-    Workbooks("HISTÓRICO PRODUÇÃO 2022-2024_V5.xlsm").Activate
+    Workbooks(databaseName).Activate
     On Error GoTo 0
     
     Worksheets("02_Correção Nomes").Select
@@ -54,12 +56,18 @@ Sub RelatorioFerramentas()
     
     'erro aqui
     ActiveSheet.Range("$A$3:$BA$4805").AutoFilter Field:=1, Operator:= _
-    xlFilterValues, Criteria2:=Array(1, arrDate(1) & "/10/20" & arrDate(0)), Order:=xlAscending
+    xlFilterValues, Criteria2:=Array(1, arrDate(1) & "/10/20" & arrDate(0))
     
-    
-
-
-    
+    ActiveWorkbook.Worksheets("01_Base").AutoFilter.Sort.SortFields.Add Key:= _
+        Range("A3:A4805"), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption _
+        :=xlSortNormal
+    With ActiveWorkbook.Worksheets("01_Base").AutoFilter.Sort
+        .Header = xlYes
+        .MatchCase = False
+        .Orientation = xlTopToBottom
+        .SortMethod = xlPinYin
+        .Apply
+    End With
     'On Error GoTo 0
 
 '------------------------- SALVANDO DADOS NO ARRAY -------------------------
