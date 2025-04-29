@@ -4,7 +4,7 @@ Option Explicit
 Sub RelatorioFerramentas()
     'Ao usar a macro:
         'C planilha que você quer copiar selecionada
-        
+         
         'a planilha precisa estar com esse formato de nome:
         'ano_mes = 24_03
         
@@ -191,8 +191,13 @@ nextName:
             GoTo NextIteration
         End If
         
+        'PERFIL
         Range("A" & x) = data(rowInt, 1)
+        
+        'Numero (N)
         Range("B" & x) = data(rowInt, 2)
+        
+        'Empresa
         Range("C" & x) = empresa
         
         'Incrementa 1
@@ -373,7 +378,7 @@ NextIt:
                             If IsEmpty(processedData(rowInt, 7)) Then
                                 Cells(perfil.row, columnIcr) = "Vazio"
                             Else
-                                Cells(perfil.row, columnIcr) = processedData(rowInt, 4)
+                                Cells(perfil.row, columnIcr) = processedData(rowInt, 7)
                             End If
                             
                             With Cells(perfil.row, columnIcr)
@@ -974,3 +979,26 @@ Function Col_Letter(lngCol As Long) As String
     vArr = Split(Cells(1, lngCol).Address(True, False), "$")
     Col_Letter = vArr(0)
 End Function
+
+Sub RelatorioEmVariasPlanilhas()
+
+    Dim arquivo As String
+    Dim i As Integer
+    
+    arquivo = "2022_Produção Por Ferramenta.xlsx"
+    
+    Workbooks(arquivo).Activate
+    
+    For i = 1 To 9
+        ActiveWorkbook.Worksheets("22_0" & i).Activate
+        
+        RelatorioFerramentas
+    Next i
+    
+    For i = 10 To 12
+        ActiveWorkbook.Worksheets("22_" & i).Activate
+        
+        RelatorioFerramentas
+    Next i
+    
+End Sub
