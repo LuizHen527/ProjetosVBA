@@ -52,9 +52,8 @@ Sub RelatorioFerramentas()
     ActiveWorkbook.Worksheets("01_Base").AutoFilter.Sort.SortFields.Clear
  
     'Filtra os dados da base pela data, de acordo com o nome da planilha(Ex:Mar_1_25)
-    'On Error GoTo msgPlanilhaNomeErrado
+    On Error GoTo msgPlanilhaNomeErrado
     
-    'erro aqui
     ActiveSheet.Range("$A$3:$BA$4805").AutoFilter Field:=1, Operator:= _
     xlFilterValues, Criteria2:=Array(1, arrDate(1) & "/10/20" & arrDate(0))
     
@@ -68,7 +67,8 @@ Sub RelatorioFerramentas()
         .SortMethod = xlPinYin
         .Apply
     End With
-    'On Error GoTo 0
+    
+    On Error GoTo 0
 
 '------------------------- SALVANDO DADOS NO ARRAY -------------------------
     
@@ -89,11 +89,10 @@ Sub RelatorioFerramentas()
     
     'Salva dados da coluna NOME CORRIGIDO
     
-    
+    On Error GoTo corrigirNome
     For rowInt = 1 To numRows
         rowAddress = (inicialRange(2) - numRows) + rowInt
 
-        On Error GoTo corrigirNome
         data(rowInt, 1) = Range("C" & rowAddress).Value
         
         
@@ -117,6 +116,8 @@ nextName:
         Worksheets("01_Base").Select
         
     Next rowInt
+    
+    On Error GoTo 0
     
     'Salva dados da coluna Numero da peça(N)
     For rowInt = 1 To numRows
@@ -192,13 +193,13 @@ nextName:
         End If
         
         'PERFIL
-        Range("A" & x) = data(rowInt, 1)
+        Range("A" & x + 1) = data(rowInt, 1)
         
         'Numero (N)
-        Range("B" & x) = data(rowInt, 2)
+        Range("B" & x + 1) = data(rowInt, 2)
         
         'Empresa
-        Range("C" & x) = empresa
+        Range("C" & x + 1) = empresa
         
         'Incrementa 1
         x = x + 1
@@ -211,34 +212,34 @@ NextIteration:
     numPerfis = Range("A1", "A" & Cells(Rows.Count, 1).End(xlUp).row).Count
     
     'Estilo das colunas
-    Range("A1") = "PERFIL"
-    Range("B1") = "Nº"
-    Range("C1") = "EMPRESA"
+    Range("A2") = "PERFIL"
+    Range("B2") = "Nº"
+    Range("C2") = "EMPRESA"
     
-    With Range("A1:A" & numPerfis)
+    With Range("A2:A" & numPerfis)
         .ColumnWidth = 42
         .HorizontalAlignment = xlCenter
         .Font.Bold = True
         .Font.Size = 12
     End With
     
-    With Range("B1:B" & numPerfis)
+    With Range("B2:B" & numPerfis)
         .ColumnWidth = 5.29
         .HorizontalAlignment = xlCenter
         .Font.Bold = True
         .Font.Size = 12
     End With
     
-    With Range("C1:C" & numPerfis)
+    With Range("C2:C" & numPerfis)
         .ColumnWidth = 17
         .HorizontalAlignment = xlCenter
         .Font.Bold = True
         .Font.Size = 12
     End With
     
-    Range("A1").Font.Size = 14
-    Range("B1").Font.Size = 14
-    Range("C1").Font.Size = 14
+    Range("A2").Font.Size = 14
+    Range("B2").Font.Size = 14
+    Range("C2").Font.Size = 14
     
     '---- Fazer com que os nomes sejam colados seguindo a ordem da empresa que ele pertence ----
     
@@ -327,7 +328,7 @@ NextIt:
                 If (processedData(rowInt, 0) = processedData(copyInt, 0)) Then
                     
                     'Percorre os nomes de perfis
-                    For Each perfil In Range("A2", "A" & numRows)
+                    For Each perfil In Range("A3", "A" & numRows)
                     
                         'Os valores são colocados na linha com o mesmo nome e numero
                         If (perfil.Value = processedData(rowInt, 1)) And _
@@ -409,9 +410,9 @@ NextIt:
             
             
             'Incere coluna e dados
-            Cells(1, columnIcr) = "Furos"
-            Cells(1, columnIcr + 1) = Format(processedData(rowInt, 0), "dd/mmm")
-            Cells(1, columnIcr + 2) = "Grs/MT"
+            Cells(2, columnIcr) = "Furos"
+            Cells(2, columnIcr + 1) = Format(processedData(rowInt, 0), "dd/mmm")
+            Cells(2, columnIcr + 2) = "Grs/MT"
             
             '-------- STYLE --------
             
@@ -445,7 +446,7 @@ NextIt:
             End With
             
             '-------- LINHAS DAS BORDAS DA CELULA --------
-            With Range(Col_Letter(columnIcr + 0) & 1, Col_Letter(columnIcr + 2) & x - 1)
+            With Range(Col_Letter(columnIcr + 0) & 2, Col_Letter(columnIcr + 2) & x - 1)
                 .Borders(xlEdgeRight).LineStyle = xlContinuous
                 .Borders(xlEdgeRight).Weight = xlThick
                 .Borders(xlInsideHorizontal).LineStyle = xlContinuous
@@ -457,7 +458,7 @@ NextIt:
             '-------- INCERIR DADOS --------
             
             'Percorre os nomes de perfis
-            For Each perfil In Range("A2", "A" & numRows)
+            For Each perfil In Range("A3", "A" & numRows)
             
                 'Os valores são colocados na linha com o mesmo nome e numero
                 If (perfil.Value = processedData(rowInt, 1)) And _
@@ -516,17 +517,17 @@ NextDate:
     
 '------------------------- COLUNA DA SOMA DA PRODUÇÃO DE CADA DIA -------------------------
     
-    Cells(1, Columns.Count).End(xlToLeft).Offset(0, 1) = "TOTAIS"
+    Cells(2, Columns.Count).End(xlToLeft).Offset(0, 1) = "TOTAIS"
     
-    Cells(1, Columns.Count).End(xlToLeft).Offset(1, 0).Formula = "=E2+H2+K2+N2+Q2+T2+W2+Z2+AC2+AF2+AI2+AL2+AO2+AR2+AU2+AX2+BA2+BD2+BG2+BJ2+BM2+BP2+BS2+BV2+BY2+CB2+CE2+CH2+CK2+CN2+CQ2+CT2"
+    Cells(2, Columns.Count).End(xlToLeft).Offset(1, 0).Formula = "=E3+H3+K3+N3+Q3+T3+W3+Z3+AC3+AF3+AI3+AL3+AO3+AR3+AU3+AX3+BA3+BD3+BG3+BJ3+BM3+BP3+BS3+BV3+BY3+CB3+CE3+CH3+CK3+CN3+CQ3+CT3"
     
-    Cells(1, Columns.Count).End(xlToLeft).Offset(1, 0).Select
+    Cells(2, Columns.Count).End(xlToLeft).Offset(1, 0).Select
     
-    Selection.AutoFill Destination:=Range(Cells(1, Columns.Count).End(xlToLeft).Offset(1, 0).Address, Col_Letter(Cells(1, Columns.Count).End(xlToLeft).Offset(1, 0).Column) & numPerfis), Type:=xlFillDefault
+    Selection.AutoFill Destination:=Range(Cells(2, Columns.Count).End(xlToLeft).Offset(1, 0).Address, Col_Letter(Cells(2, Columns.Count).End(xlToLeft).Offset(1, 0).Column) & numPerfis), Type:=xlFillDefault
     
     
     '-------- STYLE --------
-    With Range(Cells(1, Columns.Count).End(xlToLeft), Col_Letter(Cells(1, Columns.Count).End(xlToLeft).Column) & Cells(Rows.Count, 1).End(xlUp).row)
+    With Range(Cells(2, Columns.Count).End(xlToLeft), Col_Letter(Cells(2, Columns.Count).End(xlToLeft).Column) & Cells(Rows.Count, 1).End(xlUp).row)
         .Font.Size = 12
         .Font.Bold = True
         .HorizontalAlignment = xlCenter
@@ -538,7 +539,7 @@ NextDate:
 '------------------------- FAZER LINHAS DE TOTAIS -------------------------
     lastRowPerfis = Cells(Rows.Count, 1).End(xlUp).Offset(1, 0).row
     ReDim strArray(5)
-    strArray() = Split("TOTAL DO DIA,TOTAL TALÃO,TOTAL PONTA,TOTAL LÍQUIDO,PERDA TALÃO (%),PERDA PONTA (%)", ",")
+    strArray() = Split("TOTAL BRUTO [Kg],TOTAL TALÃO [Kg],TOTAL PONTA [Kg],TOTAL LÍQUIDO [Kg],PERDA TALÃO [%],PERDA PONTA [%]", ",")
     
     For x = 0 To 5
         
@@ -547,7 +548,7 @@ NextDate:
             .HorizontalAlignment = xlCenter
             .VerticalAlignment = xlCenter
             .Font.Bold = True
-            If strArray(x) = "TOTAL DO DIA" Or strArray(x) = "TOTAL LÍQUIDO" Then
+            If strArray(x) = "TOTAL BRUTO [Kg]" Or strArray(x) = "TOTAL LÍQUIDO [Kg]" Then
                 .Interior.Color = RGB(255, 255, 102)
             End If
         End With
@@ -575,7 +576,7 @@ NextDate:
         .VerticalAlignment = xlCenter
         .NumberFormat = "#,###"
         .Font.Size = 12
-        .Formula = "=SUM(E2:E" & lastRowPerfis - 1 & ")"
+        .Formula = "=SUM(E3:E" & lastRowPerfis - 1 & ")"
         
     End With
     

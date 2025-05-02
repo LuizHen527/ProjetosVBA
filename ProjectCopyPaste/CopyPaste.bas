@@ -12,11 +12,8 @@ Sub CopyPaste()
         '"HISTÓRICO PRODUÇÃO 2022-2024_V5.xlsm"
         'E o arquivo da produção diaria do mes
         
-    'Tire os filtros da tabelas
-    
-                 '////Coloca no programa para abrir e remover os filtros
-    
-    
+    'IMPORTANTE: Tire os filtros da tabelas PROD. DIARIA (Base) e HISTORICO PRODUÇÂO (01_Base)
+ 
     'Rode o programa(tecla F5)
 
 'Como adicionar mais colunas?
