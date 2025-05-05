@@ -417,7 +417,7 @@ NextIt:
             '-------- STYLE --------
             
             'Estiliza coluna de furos
-            With Cells(1, columnIcr)
+            With Cells(2, columnIcr)
                 .ColumnWidth = 5.43
                 .Font.Size = 10
                 .Font.Color = RGB(0, 112, 192)
@@ -427,7 +427,7 @@ NextIt:
             End With
             
             'Estiliza coluna de data
-            With Cells(1, columnIcr + 1)
+            With Cells(2, columnIcr + 1)
                 .ColumnWidth = 5.43
                 .Font.Size = 9
                 .Font.Bold = True
@@ -436,7 +436,7 @@ NextIt:
             End With
             
             'Estiliza coluna de Grs/MT
-            With Cells(1, columnIcr + 2)
+            With Cells(2, columnIcr + 2)
                 .ColumnWidth = 5.43
                 .Font.Size = 10
                 .Font.Color = RGB(255, 0, 0)
@@ -446,7 +446,7 @@ NextIt:
             End With
             
             '-------- LINHAS DAS BORDAS DA CELULA --------
-            With Range(Col_Letter(columnIcr + 0) & 2, Col_Letter(columnIcr + 2) & x - 1)
+            With Range(Col_Letter(columnIcr + 0) & 2, Col_Letter(columnIcr + 2) & x)
                 .Borders(xlEdgeRight).LineStyle = xlContinuous
                 .Borders(xlEdgeRight).Weight = xlThick
                 .Borders(xlInsideHorizontal).LineStyle = xlContinuous
@@ -514,6 +514,7 @@ NextDate:
         End If
         
     Next rowInt
+    
     
 '------------------------- COLUNA DA SOMA DA PRODUÇÃO DE CADA DIA -------------------------
     
@@ -844,14 +845,14 @@ NextX:
     
     With Range("A1", "C" & lastRowPerfis - 1)
         .Borders(xlInsideHorizontal).Weight = xlThin
-        .Borders(xlInsideVertical).Weight = xlThin
+        .Borders(xlInsideVertical).Weight = xlThick
         .Borders(xlEdgeRight).Weight = xlThick
         .Borders(xlEdgeLeft).Weight = xlThick
     End With
     
     '------ Colocando bordas na coluna de totais ------
     
-    With Range(Cells(1, Columns.Count).End(xlToLeft), Cells(lastRowPerfis - 1, Columns.Count).End(xlToLeft))
+    With Range(Cells(2, Columns.Count).End(xlToLeft), Cells(lastRowPerfis - 1, Columns.Count).End(xlToLeft))
         .Borders(xlInsideHorizontal).Weight = xlThin
         .Borders(xlInsideVertical).Weight = xlThin
         .Borders(xlEdgeRight).Weight = xlThick
@@ -880,9 +881,9 @@ NextX:
     If Not moldRowSum = 0 Then
         With ActiveWorkbook.ActiveSheet.Sort
             .SortFields.Clear
-            .SortFields.Add Key:=Range("A2"), _
+            .SortFields.Add Key:=Range("A3"), _
                 SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
-            .SetRange Range("A2", Cells(moldRowSum + 1, Columns.Count).End(xlToLeft))
+            .SetRange Range("A3", Cells(moldRowSum + 2, Columns.Count).End(xlToLeft))
             .Header = xlNo
             .MatchCase = False
             .Orientation = xlTopToBottom
@@ -895,9 +896,9 @@ NextX:
     If Not alumRowSum = 0 Then
         With ActiveWorkbook.ActiveSheet.Sort
             .SortFields.Clear
-            .SortFields.Add Key:=Range("A" & moldRowSum + 2), _
+            .SortFields.Add Key:=Range("A" & moldRowSum + 3), _
                 SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
-            .SetRange Range("A" & moldRowSum + 2, Cells(moldRowSum + alumRowSum + 1, Columns.Count).End(xlToLeft))
+            .SetRange Range("A" & moldRowSum + 3, Cells(moldRowSum + alumRowSum + 2, Columns.Count).End(xlToLeft))
             .Header = xlNo
             .MatchCase = False
             .Orientation = xlTopToBottom
@@ -910,9 +911,9 @@ NextX:
     If Not pollRowSum = 0 Then
         With ActiveWorkbook.ActiveSheet.Sort
             .SortFields.Clear
-            .SortFields.Add Key:=Range("A" & moldRowSum + alumRowSum + 2), _
+            .SortFields.Add Key:=Range("A" & moldRowSum + alumRowSum + 3), _
                 SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
-            .SetRange Range("A" & moldRowSum + alumRowSum + 2, Cells(moldRowSum + alumRowSum + pollRowSum + 1, Columns.Count).End(xlToLeft))
+            .SetRange Range("A" & moldRowSum + alumRowSum + 3, Cells(moldRowSum + alumRowSum + pollRowSum + 2, Columns.Count).End(xlToLeft))
             .Header = xlNo
             .MatchCase = False
             .Orientation = xlTopToBottom
@@ -925,9 +926,9 @@ NextX:
     If Not alhRowSum = 0 Then
         With ActiveWorkbook.ActiveSheet.Sort
             .SortFields.Clear
-            .SortFields.Add Key:=Range("A" & moldRowSum + alumRowSum + pollRowSum + 2), _
+            .SortFields.Add Key:=Range("A" & moldRowSum + alumRowSum + pollRowSum + 3), _
                 SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
-            .SetRange Range("A" & moldRowSum + alumRowSum + pollRowSum + 2, Cells(moldRowSum + alumRowSum + pollRowSum + alhRowSum + 1, Columns.Count).End(xlToLeft))
+            .SetRange Range("A" & moldRowSum + alumRowSum + pollRowSum + 3, Cells(moldRowSum + alumRowSum + pollRowSum + alhRowSum + 2, Columns.Count).End(xlToLeft))
             .Header = xlNo
             .MatchCase = False
             .Orientation = xlTopToBottom
@@ -940,9 +941,9 @@ NextX:
     If Not extRowSum = 0 Then
         With ActiveWorkbook.ActiveSheet.Sort
             .SortFields.Clear
-            .SortFields.Add Key:=Range("A" & moldRowSum + alumRowSum + pollRowSum + alhRowSum + 2), _
+            .SortFields.Add Key:=Range("A" & moldRowSum + alumRowSum + pollRowSum + alhRowSum + 3), _
                 SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
-            .SetRange Range("A" & moldRowSum + alumRowSum + pollRowSum + alhRowSum + 2, Cells(moldRowSum + alumRowSum + pollRowSum + alhRowSum + extRowSum + 1, Columns.Count).End(xlToLeft))
+            .SetRange Range("A" & moldRowSum + alumRowSum + pollRowSum + alhRowSum + 3, Cells(moldRowSum + alumRowSum + pollRowSum + alhRowSum + extRowSum + 2, Columns.Count).End(xlToLeft))
             .Header = xlNo
             .MatchCase = False
             .Orientation = xlTopToBottom
@@ -951,6 +952,20 @@ NextX:
         End With
     End If
     
+    '------ Colocando titulo ------
+    
+    With Range("A2", Cells(2, Columns.Count).End(xlToLeft)).Offset(-1, 0)
+        .Merge
+        .Value = "Planilha de Produção por Ferramentas - " & arrDate(1) & "/" & "20" & arrDate(0)
+        .Borders(xlEdgeBottom).Weight = xlMedium
+        .Font.Size = 16
+        .Font.Bold = True
+    End With
+    
+    Range("A2", Cells(2, Columns.Count).End(xlToLeft)).Borders(xlEdgeBottom).Weight = xlMedium
+    
+    Range("C3").Select
+    ActiveWindow.FreezePanes = True
     
     Application.ScreenUpdating = True
     
