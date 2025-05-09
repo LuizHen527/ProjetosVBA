@@ -1,0 +1,9 @@
+﻿'Private Sub Workbook_SheetBeforeDoubleClick(ByVal Sh As Object, ByVal Target As Range, Cancel As Boolean)
+'
+'If ActiveSheet.Name = "BASE" Then
+'    If Target.Address = "$A$1" Then
+'       Call C03_BOTOES.Menu
+'    End If
+'End If
+'
+'End Sub
