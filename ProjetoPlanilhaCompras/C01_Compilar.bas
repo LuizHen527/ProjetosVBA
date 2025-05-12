@@ -30,11 +30,13 @@ pedidos_novos = Array("")
 anteriores ao processo de adição dos novos pedidos
 Sheets("BASE").Select
 
-'REVER ESSA PARTE
-'--------------------------------------------------------
 ActiveWorkbook.Worksheets("BASE").AutoFilter.Sort.SortFields.Clear
-ActiveSheet.ShowAllData
-'----------------------------------------------------
+
+On Error GoTo AlreadyFiltered
+Worksheets("BASE").ShowAllData
+On Error GoTo 0
+
+AlreadyFiltered:
 
 'Limpa Valores de AA01
 Sheets("BASE").Select
@@ -110,7 +112,8 @@ For k = 1 To num_pedidos_solicitados
             pedidos_solicitados(k) = "Thumbs.db" Or _
             pedidos_solicitados(k) = "~$00_SOLICITAÇÃO DE COMPRAS_25.xlsm" Or _
             pedidos_solicitados(k) = "~$00_SOLICITAÇÃO COMPRAS.xlsm" Or _
-            pedidos_solicitados(k) = "~$00_BASE COMPRAS V7.xlsm" Then
+            pedidos_solicitados(k) = "~$00_BASE COMPRAS V7.xlsm" Or _
+            Left(pedidos_solicitados(k), 2) = "~$" Then
             
             Exit For
             
@@ -178,7 +181,7 @@ Range("AAO1").Select
     Range(Selection, Selection.End(xlDown)).Select
         Selection.Clear
 
-ActiveSheet.Range("$A$2:$AE$6000").AutoFilter
+'ActiveSheet.Range("$A$2:$AE$6000").AutoFilter
 
 'Call C03_BOTOES.Delete
 
@@ -197,6 +200,8 @@ panda:
     MsgBox ("ERROR")
 
 End Sub
+
+
 
 
 

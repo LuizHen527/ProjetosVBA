@@ -1,9 +1,35 @@
-﻿'Private Sub Workbook_SheetBeforeDoubleClick(ByVal Sh As Object, ByVal Target As Range, Cancel As Boolean)
-'
-'If ActiveSheet.Name = "BASE" Then
-'    If Target.Address = "$A$1" Then
-'       Call C03_BOTOES.Menu
-'    End If
-'End If
-'
-'End Sub
+﻿Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)
+    
+    On Error GoTo IgnorarErro
+    If ActiveSheet.Shapes.Range(ButtonShapes).Visible = True Then
+    
+        ActiveSheet.Shapes.Range(BarShapes).Visible = Not ActiveSheet.Shapes.Range(BarShapes).Visible
+        ActiveSheet.Shapes.Range(ButtonShapes).Visible = Not ActiveSheet.Shapes.Range(ButtonShapes).Visible
+    
+    End If
+    On Error GoTo 0
+    
+    Exit Sub
+    
+IgnorarErro:
+    'ignora
+    
+End Sub
+
+Private Sub Workbook_Open()
+
+    On Error GoTo IgnorarErro
+    If ActiveSheet.Shapes.Range(ButtonShapes).Visible = True Then
+    
+        ActiveSheet.Shapes.Range(BarShapes).Visible = Not ActiveSheet.Shapes.Range(BarShapes).Visible
+        ActiveSheet.Shapes.Range(ButtonShapes).Visible = Not ActiveSheet.Shapes.Range(ButtonShapes).Visible
+    
+    End If
+    On Error GoTo 0
+    
+    Exit Sub
+    
+IgnorarErro:
+    'ignora
+    
+End Sub

@@ -50,10 +50,10 @@ Sub MenuButton()
     'Quando eu apertar
     'Troca o icone do botão menu
     
-    'Começa visible
+    'Começa visivel (true)
     BarShapes = Array("IconBar1", "IconBar2", "IconBar3")
     
-    'Começa hidden
+    'Começa escondido (false)
     ButtonShapes = Array("UpdateButton", "FilterButton", "CleanButton", "IconClose", "FinanButton", "ClassiButton", "AcompButton")
     
     ActiveSheet.Shapes.Range(BarShapes).Visible = Not ActiveSheet.Shapes.Range(BarShapes).Visible
@@ -73,3 +73,4 @@ Sub SetNotVisible()
     ActiveSheet.Shapes.Range(ButtonShapes).Visible = Not ActiveSheet.Shapes.Range(ButtonShapes).Visible
 
 End Sub
+
