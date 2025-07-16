@@ -2,10 +2,12 @@ Attribute VB_Name = "FazRelatorioFerr"
 Option Explicit
 
 Sub RelatorioFerramentas()
-    'Ao usar a macro:
-    'C planilha que você quer copiar selecionada
+    Application.Calculation = xlCalculationAutomatic
+    'Como usar essa macro:
+    
+    'Deixe a aba da planilha que você quer copiar selecionada
          
-    'a planilha precisa estar com esse formato de nome:
+    'A aba da planilha precisa estar com esse formato de nome:
     'ano_mes = 24_03
         
     'ano: Deve ser os ultimos dois digitos. Exemplo para 2022: 22
@@ -14,6 +16,10 @@ Sub RelatorioFerramentas()
     
     'Se os nomes no Histórico de produção não estiver corrigido, ele
     'vai ignorar aquela linha.
+    
+    'Se o numero da ferramenta não for apenas um numero, exemplo: errado "6." certo "6", os valores de produção não aparecem.
+    'Se acontecer de um valor não aparecer, olhe o histórico e procure por algum numero de ferramenta que foi digitado errado.
+    'Isso é um bug que da pra corrigir no programa. É só permitir qualquer coisa na coluna de numero.
     
     Dim data() As Variant, processedData As Variant, perfil As Variant, somTalaoPonta() As Variant, rng As Range
     Dim fileName As String, arrDate() As String, inicialRange() As String, rowAddress As String, databaseName As String, strArray() As String, lastColTotais() As String, nome As Variant, empresa As Variant
@@ -249,13 +255,15 @@ NextIteration:
     
     For rowInt = 1 To numRows
         
-        For copyInt = 1 To rowInt - 1
+        For copyInt = 0 To rowInt - 1
+        
         
             'Verifica se o nome já foi copiado
             If (data(rowInt, 1) = processedData(copyInt, 1)) And _
                (data(rowInt, 0) = processedData(copyInt, 0)) And _
                (data(rowInt, 2) = processedData(copyInt, 2)) _
                Then
+               
             
                 'Soma a produção bruta
                 If IsNumeric(data(rowInt, 4)) Then
@@ -274,6 +282,7 @@ NextIteration:
                 GoTo NextIt
             End If
         Next copyInt
+        
     
         'Salva Data
         processedData(numRowsArray, 0) = data(rowInt, 0)
@@ -424,6 +433,7 @@ NextIt:
                 .ColumnWidth = 5.43
                 .Font.Size = 9
                 .Font.Bold = True
+                .Font.Color = VBA.ColorConstants.vbWhite
                 .HorizontalAlignment = xlCenter
                 .VerticalAlignment = xlCenter
             End With
