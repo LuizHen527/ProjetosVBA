@@ -6,7 +6,7 @@ Sub AtualizarPedidos()
     Dim inputBoxAnswer As Variant
     Dim pedidosAberto() As String, pedidosSistema() As String, novosPedidosArr() As String, pedidosFinalizadosArr() As String
     Dim pastaPedidos As Object
-    Dim systemDate() As String
+    Dim systemDate() As String, msgItensParaAtualizar As String
     
     Dim item As Variant
     
@@ -30,31 +30,41 @@ Sub AtualizarPedidos()
     
     pedidosFinalizadosArr = PedidosFinalizado(pedidosAberto())
     
+    msgItensParaAtualizar = "Os seguintes itens serão passados pra planilha:" & vbNewLine
     
     For item = 0 To UBound(novosPedidosArr)
-        
-        Debug.Print "PEDIDO NOVO:" & novosPedidosArr(item, 1)
+        If InStr(1, msgItensParaAtualizar, novosPedidosArr(item, 1), vbTextCompare) = 0 Then
+            msgItensParaAtualizar = msgItensParaAtualizar & vbNewLine & "PEDIDO NOVO:               " & novosPedidosArr(item, 1)
+        End If
     Next item
     
+    msgItensParaAtualizar = msgItensParaAtualizar & vbNewLine
+    
     For Each item In pedidosFinalizadosArr
-        Debug.Print "PEDIDO FINALIZADO:" & item
+        If InStr(1, msgItensParaAtualizar, item, vbTextCompare) = 0 Then
+            msgItensParaAtualizar = msgItensParaAtualizar & vbNewLine & "PEDIDO FINALIZADO:     " & item
+        End If
     Next item
-
-    'Função pra encontrar pedidos novos
-    'Função pra encontrar pedidos apagados
+    
+    FechaPlanilhaTecSerp
+    
+    'MsgBox msgItensParaAtualizar, vbInformation + vbOKCancel, "Itens para atualizar na planilha"
+    
+    AtualizaPedidosFinalizados pedidosFinalizadosArr()
     
     
     'Comparar pedidos da minha planilha com os do sistema
         'FEITO: Loopar pelo range de numeros de pedidos. Salvar numeros em array
         'FEITO: Compara os numeros pra pegar pedidos novos.
         'FEITO: Se tiver pedido novo, salva dados dele em um array
+        'FEITO: Compara numeros pra saber os finalizados
+        'FEITO: Colocar retorno na função de novos pedidos
+        'FEITO: Fecha planilha tecserp
         
-        'Fecha planilha tecserp
-        'Compara numeros pra saber os finalizados
-        'O que for finalizado, atualizar o status do pedido na minha planilha
-        'Colar os pedidos novos
+        'Pedidos finalizados -> atualizar o status do pedido na minha planilha
+        'Pedidos novos -> Cadastrar os pedidos novos
+        'Mudar nomes das funçoes. Primeira palavra deve ser um verbo
         
-        'Colocar retorno na função de novos pedidos
     
     Exit Sub
 FolderNotFound:
@@ -63,6 +73,35 @@ FolderNotFound:
 
 End Sub
 
+Function AtualizaPedidosFinalizados(pedidosFinalizados() As String)
+    Dim rng As Variant
+    Dim pedido As Variant
+
+    'Entrar na tab base da minha planilha
+    'Procurar pelo numero do pedido finalizado
+    'Mudar situação -> finalizado,  atenção -> não, motivo -> "Pedido sumiu", data atualização -> data de hoje
+    For Each pedido In pedidosFinalizados
+        For Each rng In ActiveSheet.AutoFilter.Range.Offset(1, 0).Columns("B").SpecialCells(xlCellTypeVisible)
+            If CStr(rng) = pedido Then
+            
+                'SITUAÇAO
+                Range(rng.Address).Offset(0, 8).Value = "FINALIZADO"
+                
+                'ATENÇÃO
+                Range(rng.Address).Offset(0, 9).Value = "NÃO"
+                
+                'MOTIVO
+                Range(rng.Address).Offset(0, 10).Value = "Pedido sumiu do sistema."
+                
+                'DATA ATUALIZAÇÃO
+                Range(rng.Address).Offset(0, 11).Value = Date
+                        
+            End If
+        Next rng
+    Next pedido
+    
+End Function
+
 Function PedidosFinalizado(meusPedidos() As String) As String()
     Dim item As Variant, rng As Variant
     Dim arrReturn() As String
@@ -70,16 +109,12 @@ Function PedidosFinalizado(meusPedidos() As String) As String()
     
     i = 0
 
-    'Pegar pedidos finalizados e colocar em um array
-    'Loopar por pedidos do sistema e procurar os meus pedidos com os que estão la
-    'O que não tiver na planilha, é pedido finalizado
-    'Salvar numero do pedido em um array e retornar
     For Each item In meusPedidos
     
             For Each rng In ActiveSheet.AutoFilter.Range.Offset(1, 0).Columns("E").SpecialCells(xlCellTypeVisible)
-                If rng.Value <> "" Then
+                If CStr(rng) <> "" Then
                 
-                    If rng = item Then
+                    If CStr(rng) = item Then
                     
                         GoTo NextI
                         
@@ -116,20 +151,16 @@ Function NovosPedidos(meusPedidos() As String) As String()
         If rng.Value <> "" Then
             
             For Each item In meusPedidos
-                'Debug.Print rng.Value & "/" & item
                 
                 If rng = item Then
-                
-                    'Debug.Print "Encontrado: " & item
                     
                     GoTo NextIteration
                     
                 End If
                 
             Next item
-            'Loopar pelo range, cadastrando os dados em um array
             
-            'Debug.Print "Pedido Novo: " & rng & " " & Range(rng.Address, rng.End(xlUp).Offset(1, 0).Address).Address
+            'Loopar pelo range, cadastrando os dados em um array
             arrSize = arrSize + Range(rng.Address, rng.End(xlUp).Offset(1, 0).Address).Count
         End If
         
@@ -146,27 +177,17 @@ NextIteration:
         If rng.Value <> "" Then
             
             For Each item In meusPedidos
-                'Debug.Print rng.Value & "/" & item
                 
                 If rng = item Then
-                
-                    'Debug.Print "Encontrado: " & item
                     
                     GoTo NextIt
                     
                 End If
                 
             Next item
-            'Loopar pelo range, cadastrando os dados em um array
-            
-            'Debug.Print "Pedido Novo: " & rng & " " & Range(rng.Address, rng.End(xlUp).Offset(1, 0).Address).Address
-            
-            
             
             For Each novoPedido In Range(rng.Address, rng.End(xlUp).Offset(1, 0).Address)
-                
-                
-                
+
                 'Data do pedido
                 returnArray(i, 0) = Range(novoPedido.Offset(0, -4).Address).Value
                 
@@ -194,23 +215,9 @@ NextIteration:
                 'Valor
                 returnArray(i, 8) = Range(novoPedido.Offset(0, 8).Address).Value
                 
-'                Debug.Print "DATA:      " & returnArray(i, 0)
-'                Debug.Print "NUMERO:    " & returnArray(i, 1)
-'                Debug.Print "CLIENTE:   " & returnArray(i, 2)
-'                Debug.Print "PRODUTO:   " & returnArray(i, 3)
-'                Debug.Print "VENDEDOR:  " & returnArray(i, 4)
-'                Debug.Print "CADAST:    " & returnArray(i, 5)
-'                Debug.Print "QUANT:     " & returnArray(i, 6)
-'                Debug.Print "UNID:      " & returnArray(i, 7)
-'                Debug.Print "VALOR:     " & returnArray(i, 8)
-                
                 i = i + 1
             Next novoPedido
-            
 
-            
-            
-            
         End If
         
 NextIt:
@@ -248,8 +255,6 @@ Function PedidosTecserp() As String()
             ReDim returnArray(i)
             returnArray(i) = rng.Value
             
-            'Redim no array
-            
             i = i + 1
         End If
         
@@ -276,7 +281,11 @@ Function AbrePlanilhaTecSerp(systemDate() As String, pastaRaiz As Object)
     
 End Function
 
+Function FechaPlanilhaTecSerp()
 
+    ActiveWorkbook.Close SaveChanges:=False
+    
+End Function
 
 Function PedidosEmAberto() As String()
     Dim rangeNumPedidos() As String, rng As Range
@@ -289,15 +298,13 @@ Function PedidosEmAberto() As String()
     
     Sheets("base").Select
     
-    'Filtra pedidos em aberto
     ActiveSheet.ListObjects("Tabela3").Range.AutoFilter Field:=10, Criteria1:= _
         "EM ABERTO"
 
     i = 0
     
     ReDim arrPedidos(i)
-    
-    'Loopar pelo range conta quantos pedidos tem
+
     For Each rng In Worksheets("base").AutoFilter.Range.Offset(1, 0).Columns("B").SpecialCells(xlCellTypeVisible)
         
         
