@@ -4,7 +4,7 @@ Option Explicit
 
 Sub AtualizarPedidos()
     Dim inputBoxAnswer As Variant
-    Dim pedidosAberto() As String, pedidosSistema() As String
+    Dim pedidosAberto() As String, pedidosSistema() As String, novosPedidosArr() As String, pedidosFinalizadosArr() As String
     Dim pastaPedidos As Object
     Dim systemDate() As String
     
@@ -26,7 +26,19 @@ Sub AtualizarPedidos()
     
     pedidosSistema = PedidosTecserp()
     
-    NovosPedidos pedidosAberto()
+    novosPedidosArr = NovosPedidos(pedidosAberto())
+    
+    pedidosFinalizadosArr = PedidosFinalizado(pedidosAberto())
+    
+    
+    For item = 0 To UBound(novosPedidosArr)
+        
+        Debug.Print "PEDIDO NOVO:" & novosPedidosArr(item, 1)
+    Next item
+    
+    For Each item In pedidosFinalizadosArr
+        Debug.Print "PEDIDO FINALIZADO:" & item
+    Next item
 
     'Função pra encontrar pedidos novos
     'Função pra encontrar pedidos apagados
@@ -41,6 +53,8 @@ Sub AtualizarPedidos()
         'Compara numeros pra saber os finalizados
         'O que for finalizado, atualizar o status do pedido na minha planilha
         'Colar os pedidos novos
+        
+        'Colocar retorno na função de novos pedidos
     
     Exit Sub
 FolderNotFound:
@@ -48,6 +62,45 @@ FolderNotFound:
     vbExclamation, "Planilha do TecSerp não encontrada"
 
 End Sub
+
+Function PedidosFinalizado(meusPedidos() As String) As String()
+    Dim item As Variant, rng As Variant
+    Dim arrReturn() As String
+    Dim i As Integer
+    
+    i = 0
+
+    'Pegar pedidos finalizados e colocar em um array
+    'Loopar por pedidos do sistema e procurar os meus pedidos com os que estão la
+    'O que não tiver na planilha, é pedido finalizado
+    'Salvar numero do pedido em um array e retornar
+    For Each item In meusPedidos
+    
+            For Each rng In ActiveSheet.AutoFilter.Range.Offset(1, 0).Columns("E").SpecialCells(xlCellTypeVisible)
+                If rng.Value <> "" Then
+                
+                    If rng = item Then
+                    
+                        GoTo NextI
+                        
+                    End If
+                    
+                End If
+            Next rng
+            
+            If item <> "" Then
+                ReDim Preserve arrReturn(i)
+            
+                arrReturn(i) = item
+                
+                i = i + 1
+            End If
+NextI:
+        
+    Next item
+    
+    PedidosFinalizado = arrReturn
+End Function
 
 Function NovosPedidos(meusPedidos() As String) As String()
     Dim returnArray() As String, item As Variant, novoPedido As Variant
@@ -141,15 +194,15 @@ NextIteration:
                 'Valor
                 returnArray(i, 8) = Range(novoPedido.Offset(0, 8).Address).Value
                 
-                Debug.Print "DATA:      " & returnArray(i, 0)
-                Debug.Print "NUMERO:    " & returnArray(i, 1)
-                Debug.Print "CLIENTE:   " & returnArray(i, 2)
-                Debug.Print "PRODUTO:   " & returnArray(i, 3)
-                Debug.Print "VENDEDOR:  " & returnArray(i, 4)
-                Debug.Print "CADAST:    " & returnArray(i, 5)
-                Debug.Print "QUANT:     " & returnArray(i, 6)
-                Debug.Print "UNID:      " & returnArray(i, 7)
-                Debug.Print "VALOR:     " & returnArray(i, 8)
+'                Debug.Print "DATA:      " & returnArray(i, 0)
+'                Debug.Print "NUMERO:    " & returnArray(i, 1)
+'                Debug.Print "CLIENTE:   " & returnArray(i, 2)
+'                Debug.Print "PRODUTO:   " & returnArray(i, 3)
+'                Debug.Print "VENDEDOR:  " & returnArray(i, 4)
+'                Debug.Print "CADAST:    " & returnArray(i, 5)
+'                Debug.Print "QUANT:     " & returnArray(i, 6)
+'                Debug.Print "UNID:      " & returnArray(i, 7)
+'                Debug.Print "VALOR:     " & returnArray(i, 8)
                 
                 i = i + 1
             Next novoPedido
@@ -163,6 +216,8 @@ NextIteration:
 NextIt:
         
     Next rng
+    
+    NovosPedidos = returnArray
     
 End Function
 
