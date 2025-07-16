@@ -48,9 +48,11 @@ Sub AtualizarPedidos()
     
     FechaPlanilhaTecSerp
     
-    'MsgBox msgItensParaAtualizar, vbInformation + vbOKCancel, "Itens para atualizar na planilha"
+    MsgBox msgItensParaAtualizar, vbInformation + vbOKCancel, "Itens para atualizar na planilha"
     
     AtualizaPedidosFinalizados pedidosFinalizadosArr()
+    
+    AtualizaPedidosNovos novosPedidosArr
     
     
     'Comparar pedidos da minha planilha com os do sistema
@@ -72,6 +74,75 @@ FolderNotFound:
     vbExclamation, "Planilha do TecSerp não encontrada"
 
 End Sub
+
+Function AtualizaPedidosNovos(pedidosNovos() As String)
+    Dim ultimaLinha As String
+    Dim i As Integer
+    
+    Range("Tabela3[[#Headers],[PRODUTO]]").Select
+    ActiveSheet.ShowAllData
+    
+    For i = 0 To UBound(pedidosNovos)
+        ultimaLinha = Range("A" & Cells(Rows.Count, 1).End(xlUp).Row).Offset(1, 0).Address
+        
+        'Data
+        Range(ultimaLinha).Value = pedidosNovos(i, 0)
+        
+        'Numero do pedido
+        Range(ultimaLinha).Offset(0, 1).Value = pedidosNovos(i, 1)
+        
+        'Cliente
+        Range(ultimaLinha).Offset(0, 2).Value = pedidosNovos(i, 2)
+        
+        'Vendedor
+        Range(ultimaLinha).Offset(0, 3).Value = pedidosNovos(i, 4)
+        
+        'Cadastrado
+        Range(ultimaLinha).Offset(0, 4).Value = pedidosNovos(i, 5)
+        
+        'Produto
+        Range(ultimaLinha).Offset(0, 5).Value = pedidosNovos(i, 3)
+        
+        'Quantidade
+        Range(ultimaLinha).Offset(0, 6).Value = pedidosNovos(i, 6)
+        
+        'Unidade
+        Range(ultimaLinha).Offset(0, 7).Value = pedidosNovos(i, 7)
+        
+        'Valor
+        Range(ultimaLinha).Offset(0, 8).Value = CDbl(pedidosNovos(i, 8))
+        
+        'Situação
+        Range(ultimaLinha).Offset(0, 9).Value = "EM ABERTO"
+        
+        If pedidosNovos(i, 3) = "DESPESA DE CORREIO" Or CDbl(pedidosNovos(i, 8)) = 0 Then
+            'Pedido atenção
+            Range(ultimaLinha).Offset(0, 10).Value = "NÃO"
+        Else
+            'Pedido atenção
+            Range(ultimaLinha).Offset(0, 10).Value = "SIM"
+        End If
+        
+        'Motivo
+        Range(ultimaLinha).Offset(0, 11).Value = "Perguntar para vendedoras."
+        
+        'Data atualização
+        Range(ultimaLinha).Offset(0, 12).Value = Date
+        
+        
+        
+        
+        'Colar os outros valores
+        'Se for DESPESA CORREIO ou o valor for igual a 0, Colocar NÂO no campo ATENÇÃO
+        
+        
+        
+    Next i
+    
+
+    
+    
+End Function
 
 Function AtualizaPedidosFinalizados(pedidosFinalizados() As String)
     Dim rng As Variant
