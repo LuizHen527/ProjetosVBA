@@ -4,13 +4,11 @@ Option Explicit
 
 Sub AtualizarPedidos()
     Dim inputBoxAnswer As Variant
-    Dim pedidosAberto() As String, pedidosSistema() As String, novosPedidosArr() As String, pedidosFinalizadosArr() As String
+    Dim pedidosAberto() As String, novosPedidosArr() As String, pedidosFinalizadosArr() As String
     Dim pastaPedidos As Object
-    Dim systemDate() As String, msgItensParaAtualizar As String
+    Dim systemDate() As String
     
-    Dim item As Variant
-    
-    Set pastaPedidos = CreateObject("Scripting.FileSystemObject").getfolder("C:\Users\Molducolor7\Desktop\TesteMacroPedidos")
+    Set pastaPedidos = CreateObject("Scripting.FileSystemObject").getfolder("\\121.137.1.5\manutencao1\Lucas\12_Relatorios\2025\01_Relatorios Diarios\01_Relatorios TecSerp")
     
     'inputBoxAnswer = Application.InputBox("Colocar data limite? Digite 0 para não colocar data limite", "Data limite", , , , , , 2 + 4 + 16)
     
@@ -24,49 +22,38 @@ Sub AtualizarPedidos()
         AbrePlanilhaTecSerp systemDate, pastaPedidos
     On Error GoTo 0
     
-    pedidosSistema = PedidosTecserp()
-    
     novosPedidosArr = NovosPedidos(pedidosAberto())
     
-    pedidosFinalizadosArr = PedidosFinalizado(pedidosAberto())
-    
-    msgItensParaAtualizar = "Os seguintes itens serão passados pra planilha:" & vbNewLine
-    
-    For item = 0 To UBound(novosPedidosArr)
-        If InStr(1, msgItensParaAtualizar, novosPedidosArr(item, 1), vbTextCompare) = 0 Then
-            msgItensParaAtualizar = msgItensParaAtualizar & vbNewLine & "PEDIDO NOVO:               " & novosPedidosArr(item, 1)
-        End If
-    Next item
-    
-    msgItensParaAtualizar = msgItensParaAtualizar & vbNewLine
-    
-    For Each item In pedidosFinalizadosArr
-        If InStr(1, msgItensParaAtualizar, item, vbTextCompare) = 0 Then
-            msgItensParaAtualizar = msgItensParaAtualizar & vbNewLine & "PEDIDO FINALIZADO:     " & item
-        End If
-    Next item
+    pedidosFinalizadosArr = pedidosFinalizados(pedidosAberto())
     
     FechaPlanilhaTecSerp
     
-    MsgBox msgItensParaAtualizar, vbInformation + vbOKCancel, "Itens para atualizar na planilha"
+    If novosPedidosArr(0, 0) = "Vazio" And pedidosFinalizadosArr(0) = "Vazio" Then
+        MsgBox "A planilha já está atualizada.", vbInformation, "Sem novos dados"
+        Exit Sub
+    End If
     
-    AtualizaPedidosFinalizados pedidosFinalizadosArr()
+    If MsgItensAtualizados(novosPedidosArr, pedidosFinalizadosArr) = 2 Then
+        Exit Sub
+    End If
     
-    AtualizaPedidosNovos novosPedidosArr
-    
-    
-    'Comparar pedidos da minha planilha com os do sistema
-        'FEITO: Loopar pelo range de numeros de pedidos. Salvar numeros em array
-        'FEITO: Compara os numeros pra pegar pedidos novos.
-        'FEITO: Se tiver pedido novo, salva dados dele em um array
-        'FEITO: Compara numeros pra saber os finalizados
-        'FEITO: Colocar retorno na função de novos pedidos
-        'FEITO: Fecha planilha tecserp
+    If novosPedidosArr(0, 0) <> "Vazio" Then
+        'Verificar se o pedido novo já não está como pedido finalizado. Se tiver, apenas mudar o status do pedido,
+        'motivo e data de atualização na minha planilha
         
-        'Pedidos finalizados -> atualizar o status do pedido na minha planilha
-        'Pedidos novos -> Cadastrar os pedidos novos
-        'Mudar nomes das funçoes. Primeira palavra deve ser um verbo
+        'Como?
+        'Colocar coluna com um valor pra sinalizar se é pra mudar o status ou se é pra cadastrar
+            'Como?
+            'Loopar por pedidos finalizados. Se ele estiver lá, colocar um valor em uma das colunas do array.
+        'Na hora de cadastrar. O que tiver aquela marca, apenas rode um codigo que atualiza
         
+        AtualizaPedidosNovos novosPedidosArr
+        
+    End If
+    
+    If pedidosFinalizadosArr(0) <> "Vazio" Then
+        AtualizaPedidosFinalizados pedidosFinalizadosArr()
+    End If
     
     Exit Sub
 FolderNotFound:
@@ -74,6 +61,43 @@ FolderNotFound:
     vbExclamation, "Planilha do TecSerp não encontrada"
 
 End Sub
+
+
+
+
+'------------ FUNCTIONS ------------
+
+Function MsgItensAtualizados(pedidosNovos() As String, pedidosFinalizados() As String) As VbMsgBoxResult
+    Dim item As Variant
+    Dim msgItensParaAtualizar As String
+    Dim msgBoxResult As VbMsgBoxResult
+    
+    msgItensParaAtualizar = "Os seguintes itens foram passados pra planilha:" & vbNewLine
+
+    If pedidosNovos(0, 0) <> "Vazio" Then
+        For item = 0 To UBound(pedidosNovos)
+            If InStr(1, msgItensParaAtualizar, pedidosNovos(item, 1), vbTextCompare) = 0 Then
+                msgItensParaAtualizar = msgItensParaAtualizar & vbNewLine & "PEDIDO NOVO:               " & pedidosNovos(item, 1)
+            End If
+        Next item
+    End If
+    
+    msgItensParaAtualizar = msgItensParaAtualizar & vbNewLine
+    
+    If pedidosFinalizados(0) <> "Vazio" Then
+        For Each item In pedidosFinalizados
+            If InStr(1, msgItensParaAtualizar, item, vbTextCompare) = 0 Then
+                msgItensParaAtualizar = msgItensParaAtualizar & vbNewLine & "PEDIDO FINALIZADO:     " & item
+            End If
+        Next item
+    End If
+    
+    msgBoxResult = MsgBox(msgItensParaAtualizar, vbInformation + vbOKCancel, "Itens para atualizar na planilha")
+    
+    MsgItensAtualizados = msgBoxResult
+    
+End Function
+
 
 Function AtualizaPedidosNovos(pedidosNovos() As String)
     Dim ultimaLinha As String
@@ -128,29 +152,15 @@ Function AtualizaPedidosNovos(pedidosNovos() As String)
         
         'Data atualização
         Range(ultimaLinha).Offset(0, 12).Value = Date
-        
-        
-        
-        
-        'Colar os outros valores
-        'Se for DESPESA CORREIO ou o valor for igual a 0, Colocar NÂO no campo ATENÇÃO
-        
-        
-        
+ 
     Next i
-    
 
-    
-    
 End Function
 
 Function AtualizaPedidosFinalizados(pedidosFinalizados() As String)
     Dim rng As Variant
     Dim pedido As Variant
 
-    'Entrar na tab base da minha planilha
-    'Procurar pelo numero do pedido finalizado
-    'Mudar situação -> finalizado,  atenção -> não, motivo -> "Pedido sumiu", data atualização -> data de hoje
     For Each pedido In pedidosFinalizados
         For Each rng In ActiveSheet.AutoFilter.Range.Offset(1, 0).Columns("B").SpecialCells(xlCellTypeVisible)
             If CStr(rng) = pedido Then
@@ -173,7 +183,7 @@ Function AtualizaPedidosFinalizados(pedidosFinalizados() As String)
     
 End Function
 
-Function PedidosFinalizado(meusPedidos() As String) As String()
+Function pedidosFinalizados(meusPedidos() As String) As String()
     Dim item As Variant, rng As Variant
     Dim arrReturn() As String
     Dim i As Integer
@@ -205,7 +215,15 @@ NextI:
         
     Next item
     
-    PedidosFinalizado = arrReturn
+    If i = 0 Then
+        ReDim arrReturn(1)
+        arrReturn(0) = "Vazio"
+        pedidosFinalizados = arrReturn
+        
+        Exit Function
+    End If
+    
+    pedidosFinalizados = arrReturn
 End Function
 
 Function NovosPedidos(meusPedidos() As String) As String()
@@ -239,8 +257,16 @@ NextIteration:
         
     Next rng
     
+    If arrSize = 0 Then
+        ReDim returnArray(1, 1)
+        returnArray(0, 0) = "Vazio"
+        NovosPedidos = returnArray
+        
+        Exit Function
+    End If
     
     ReDim returnArray(arrSize - 1, 8)
+    
     
     
     For Each rng In ActiveSheet.AutoFilter.Range.Offset(1, 0).Columns("E").SpecialCells(xlCellTypeVisible)
@@ -300,43 +326,6 @@ NextIt:
 End Function
 
 
-
-Function PedidosTecserp() As String()
-    Dim returnArray() As String
-    Dim rng As Range
-    Dim i As Integer
-    
-    i = 0
-    
-    'Criar uma tabela e filtra essa tabela com uma data
-    ActiveSheet.ListObjects.Add(xlSrcRange, Range("A1:" & "AJ" & Cells(Rows.Count, 1).End(xlUp).Row), , xlYes).Name _
-        = "Tabela1"
-    
-    ActiveSheet.ListObjects("Tabela1").TableStyle = ""
-        
-    ActiveSheet.ListObjects("Tabela1").Range.AutoFilter Field:=1, Criteria1:= _
-        "<=" & CLng(CDate("22/04/2025")), Operator:=xlFilterValues
-        
-        
-
-    'Pega os numeros de pedidos e salva no array que a função retorna
-    For Each rng In ActiveSheet.AutoFilter.Range.Offset(1, 0).Columns("E").SpecialCells(xlCellTypeVisible)
-        
-        If rng.Value <> "" Then
-            ReDim returnArray(i)
-            returnArray(i) = rng.Value
-            
-            i = i + 1
-        End If
-        
-    Next rng
-    
-    PedidosTecserp = returnArray
-    
-End Function
-
-
-
 Function AbrePlanilhaTecSerp(systemDate() As String, pastaRaiz As Object)
     Dim pasta As String, arquivo As String
     
@@ -349,6 +338,15 @@ Function AbrePlanilhaTecSerp(systemDate() As String, pastaRaiz As Object)
     Workbooks.Open fileName:=pastaRaiz & "\" & pasta & "\" & arquivo
     
     ActiveWorkbook.Sheets("Macro").Select
+    
+    'Criar uma tabela e filtra essa tabela com uma data
+    ActiveSheet.ListObjects.Add(xlSrcRange, Range("A1:" & "AJ" & Cells(Rows.Count, 1).End(xlUp).Row), , xlYes).Name _
+        = "Tabela1"
+    
+    ActiveSheet.ListObjects("Tabela1").TableStyle = ""
+        
+    ActiveSheet.ListObjects("Tabela1").Range.AutoFilter Field:=1, Criteria1:= _
+        "<=" & CLng(CDate("22/04/2025")), Operator:=xlFilterValues
     
 End Function
 
@@ -368,6 +366,10 @@ Function PedidosEmAberto() As String()
     iterator = 0
     
     Sheets("base").Select
+    
+    Range("A3").Select
+    
+    ActiveSheet.ShowAllData
     
     ActiveSheet.ListObjects("Tabela3").Range.AutoFilter Field:=10, Criteria1:= _
         "EM ABERTO"
