@@ -3,23 +3,26 @@ Attribute VB_Name = "AtualizarPedidos"
 Option Explicit
 
 Sub AtualizarPedidos()
-    Dim inputBoxAnswer As Variant
     Dim pedidosAberto() As String, novosPedidosArr() As String, pedidosFinalizadosArr() As String
     Dim pastaPedidos As Object
-    Dim systemDate() As String
+    Dim systemDate() As String, inputDateResult As String
+    
+    inputDateResult = InputDate
+    
+    If inputDateResult = "End" Then
+        Exit Sub
+    End If
     
     Set pastaPedidos = CreateObject("Scripting.FileSystemObject").getfolder("\\121.137.1.5\manutencao1\Lucas\12_Relatorios\2025\01_Relatorios Diarios\01_Relatorios TecSerp")
     
-    'inputBoxAnswer = Application.InputBox("Colocar data limite? Digite 0 para não colocar data limite", "Data limite", , , , , , 2 + 4 + 16)
-    
     pedidosAberto = PedidosEmAberto
     
-    
     ReDim systemDate(2)
+    
     systemDate = Split(Date, "/")
 
     On Error GoTo FolderNotFound
-        AbrePlanilhaTecSerp systemDate, pastaPedidos
+        AbrePlanilhaTecSerp systemDate, pastaPedidos, inputDateResult
     On Error GoTo 0
     
     novosPedidosArr = NovosPedidos(pedidosAberto())
@@ -29,7 +32,7 @@ Sub AtualizarPedidos()
     FechaPlanilhaTecSerp
     
     If novosPedidosArr(0, 0) = "Vazio" And pedidosFinalizadosArr(0) = "Vazio" Then
-        MsgBox "A planilha já está atualizada.", vbInformation, "Sem novos dados"
+        msgBox "A planilha já está atualizada.", vbInformation, "Sem novos dados"
         Exit Sub
     End If
     
@@ -38,14 +41,6 @@ Sub AtualizarPedidos()
     End If
     
     If novosPedidosArr(0, 0) <> "Vazio" Then
-        'Verificar se o pedido novo já não está como pedido finalizado. Se tiver, apenas mudar o status do pedido,
-        'motivo e data de atualização na minha planilha
-        
-        'Como?
-        'Colocar coluna com um valor pra sinalizar se é pra mudar o status ou se é pra cadastrar
-            'Como?
-            'Loopar por pedidos finalizados. Se ele estiver lá, colocar um valor em uma das colunas do array.
-        'Na hora de cadastrar. O que tiver aquela marca, apenas rode um codigo que atualiza
         
         AtualizaPedidosNovos novosPedidosArr
         
@@ -57,7 +52,7 @@ Sub AtualizarPedidos()
     
     Exit Sub
 FolderNotFound:
-    MsgBox "Verifique se a planilha de pedidos a faturar de hoje (" & systemDate(0) & "/" & systemDate(1) & "/" & systemDate(2) & ") foi gerada." & vbNewLine & vbNewLine & "Verifique a pasta em: " & pastaPedidos, _
+    msgBox "Verifique se a planilha de pedidos a faturar de hoje (" & systemDate(0) & "/" & systemDate(1) & "/" & systemDate(2) & ") foi gerada." & vbNewLine & vbNewLine & "Verifique a pasta em: " & pastaPedidos, _
     vbExclamation, "Planilha do TecSerp não encontrada"
 
 End Sub
@@ -66,6 +61,65 @@ End Sub
 
 
 '------------ FUNCTIONS ------------
+
+Function InputDate() As String
+    Dim inputBoxAnswer As Variant
+    Dim msgBoxAnswer As VbMsgBoxResult
+    Dim ultimaData As String
+    Dim dateInput As Date
+    
+    Sheets("base").Select
+    
+    Range("A3").Select
+    
+    If ActiveSheet.FilterMode Then
+        ActiveSheet.ShowAllData
+    End If
+    
+    'Perguntar se ele quer data limite ser igual a ultima data inserida
+    ultimaData = Range("A" & Cells(Rows.Count, 1).End(xlUp).Row).Value
+    
+    msgBoxAnswer = msgBox("Quer pegar os pedidos até essa data: " & ultimaData & "?", vbYesNoCancel + vbQuestion, "Data de procura")
+    
+    If msgBoxAnswer = vbYes Then
+        'Retornar a ultima data
+        InputDate = ultimaData
+        
+        Exit Function
+        
+    ElseIf msgBoxAnswer = vbCancel Then
+        InputDate = "End"
+            
+        Exit Function
+    End If
+    
+    
+    While True
+        inputBoxAnswer = Application.InputBox("Colocar data limite?", "Data limite", , , , , , 2 + 4 + 16)
+        
+        If inputBoxAnswer = False Then
+            InputDate = "End"
+            
+            Exit Function
+        End If
+        
+        'Converter string pra data. Se não for, perguntar denovo
+        On Error GoTo ErrorDate
+            dateInput = CDate(inputBoxAnswer)
+        On Error GoTo 0
+        
+        If CDbl(dateInput) < 45297 Then GoTo ErrorDate
+        
+        InputDate = inputBoxAnswer
+        
+        Exit Function
+  
+ErrorDate:
+        msgBox "Digite uma data valida. Ex: 14/05/2025", vbOKOnly + vbExclamation, "Data incorreta"
+    Wend
+    
+    
+End Function
 
 Function MsgItensAtualizados(pedidosNovos() As String, pedidosFinalizados() As String) As VbMsgBoxResult
     Dim item As Variant
@@ -92,7 +146,7 @@ Function MsgItensAtualizados(pedidosNovos() As String, pedidosFinalizados() As S
         Next item
     End If
     
-    msgBoxResult = MsgBox(msgItensParaAtualizar, vbInformation + vbOKCancel, "Itens para atualizar na planilha")
+    msgBoxResult = msgBox(msgItensParaAtualizar, vbInformation + vbOKCancel, "Itens para atualizar na planilha")
     
     MsgItensAtualizados = msgBoxResult
     
@@ -107,6 +161,7 @@ Function AtualizaPedidosNovos(pedidosNovos() As String)
     ActiveSheet.ShowAllData
     
     For i = 0 To UBound(pedidosNovos)
+    
         ultimaLinha = Range("A" & Cells(Rows.Count, 1).End(xlUp).Row).Offset(1, 0).Address
         
         'Data
@@ -142,13 +197,18 @@ Function AtualizaPedidosNovos(pedidosNovos() As String)
         If pedidosNovos(i, 3) = "DESPESA DE CORREIO" Or CDbl(pedidosNovos(i, 8)) = 0 Then
             'Pedido atenção
             Range(ultimaLinha).Offset(0, 10).Value = "NÃO"
+            
+            'Motivo
+            Range(ultimaLinha).Offset(0, 11).Value = "Pedido sem valor."
         Else
             'Pedido atenção
             Range(ultimaLinha).Offset(0, 10).Value = "SIM"
+            
+            'Motivo
+            Range(ultimaLinha).Offset(0, 11).Value = "Perguntar para vendedoras."
         End If
         
-        'Motivo
-        Range(ultimaLinha).Offset(0, 11).Value = "Perguntar para vendedoras."
+        
         
         'Data atualização
         Range(ultimaLinha).Offset(0, 12).Value = Date
@@ -235,6 +295,7 @@ Function NovosPedidos(meusPedidos() As String) As String()
     
     ReDim returnArray(i, 8)
     
+    'Verifica a quantidade de pedidos novos
     For Each rng In ActiveSheet.AutoFilter.Range.Offset(1, 0).Columns("E").SpecialCells(xlCellTypeVisible)
         
         If rng.Value <> "" Then
@@ -268,11 +329,11 @@ NextIteration:
     ReDim returnArray(arrSize - 1, 8)
     
     
-    
     For Each rng In ActiveSheet.AutoFilter.Range.Offset(1, 0).Columns("E").SpecialCells(xlCellTypeVisible)
         
         If rng.Value <> "" Then
             
+            'Se o numero do pedido(rng) estiver no array meusPedidos, vai pra proxima iteracao
             For Each item In meusPedidos
                 
                 If rng = item Then
@@ -282,7 +343,9 @@ NextIteration:
                 End If
                 
             Next item
-            
+
+
+
             For Each novoPedido In Range(rng.Address, rng.End(xlUp).Offset(1, 0).Address)
 
                 'Data do pedido
@@ -326,7 +389,7 @@ NextIt:
 End Function
 
 
-Function AbrePlanilhaTecSerp(systemDate() As String, pastaRaiz As Object)
+Function AbrePlanilhaTecSerp(systemDate() As String, pastaRaiz As Object, filterDate As String)
     Dim pasta As String, arquivo As String
     
     
@@ -344,9 +407,10 @@ Function AbrePlanilhaTecSerp(systemDate() As String, pastaRaiz As Object)
         = "Tabela1"
     
     ActiveSheet.ListObjects("Tabela1").TableStyle = ""
+    
         
     ActiveSheet.ListObjects("Tabela1").Range.AutoFilter Field:=1, Criteria1:= _
-        "<=" & CLng(CDate("22/04/2025")), Operator:=xlFilterValues
+        "<=" & CLng(CDate(filterDate)), Operator:=xlFilterValues
     
 End Function
 
@@ -369,7 +433,9 @@ Function PedidosEmAberto() As String()
     
     Range("A3").Select
     
-    ActiveSheet.ShowAllData
+    If ActiveSheet.FilterMode Then
+        ActiveSheet.ShowAllData
+    End If
     
     ActiveSheet.ListObjects("Tabela3").Range.AutoFilter Field:=10, Criteria1:= _
         "EM ABERTO"
