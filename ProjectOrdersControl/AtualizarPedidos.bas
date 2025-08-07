@@ -13,9 +13,11 @@ Sub AtualizarPedidos()
         Exit Sub
     End If
     
+    Application.ScreenUpdating = False
+    
     Set pastaPedidos = CreateObject("Scripting.FileSystemObject").getfolder("\\121.137.1.5\manutencao1\Lucas\12_Relatorios\2025\01_Relatorios Diarios\01_Relatorios TecSerp")
     
-    pedidosAberto = PedidosEmAberto
+    pedidosAberto = pedidosEmAberto
     
     ReDim systemDate(2)
     
@@ -32,7 +34,7 @@ Sub AtualizarPedidos()
     FechaPlanilhaTecSerp
     
     If novosPedidosArr(0, 0) = "Vazio" And pedidosFinalizadosArr(0) = "Vazio" Then
-        msgBox "A planilha já está atualizada.", vbInformation, "Sem novos dados"
+        MsgBox "A planilha já está atualizada.", vbInformation, "Sem novos dados"
         Exit Sub
     End If
     
@@ -52,7 +54,7 @@ Sub AtualizarPedidos()
     
     Exit Sub
 FolderNotFound:
-    msgBox "Verifique se a planilha de pedidos a faturar de hoje (" & systemDate(0) & "/" & systemDate(1) & "/" & systemDate(2) & ") foi gerada." & vbNewLine & vbNewLine & "Verifique a pasta em: " & pastaPedidos, _
+    MsgBox "Verifique se a planilha de pedidos a faturar de hoje (" & systemDate(0) & "/" & systemDate(1) & "/" & systemDate(2) & ") foi gerada." & vbNewLine & vbNewLine & "Verifique a pasta em: " & pastaPedidos, _
     vbExclamation, "Planilha do TecSerp não encontrada"
 
 End Sub
@@ -77,9 +79,9 @@ Function InputDate() As String
     End If
     
     'Perguntar se ele quer data limite ser igual a ultima data inserida
-    ultimaData = Range("A" & Cells(Rows.Count, 1).End(xlUp).Row).Value
+    ultimaData = Range("A" & Cells(Rows.Count, 1).End(xlUp).row).Value
     
-    msgBoxAnswer = msgBox("Quer pegar os pedidos até essa data: " & ultimaData & "?", vbYesNoCancel + vbQuestion, "Data de procura")
+    msgBoxAnswer = MsgBox("Quer pegar os pedidos até essa data: " & ultimaData & "?", vbYesNoCancel + vbQuestion, "Data de procura")
     
     If msgBoxAnswer = vbYes Then
         'Retornar a ultima data
@@ -115,7 +117,7 @@ Function InputDate() As String
         Exit Function
   
 ErrorDate:
-        msgBox "Digite uma data valida. Ex: 14/05/2025", vbOKOnly + vbExclamation, "Data incorreta"
+        MsgBox "Digite uma data valida. Ex: 14/05/2025", vbOKOnly + vbExclamation, "Data incorreta"
     Wend
     
     
@@ -146,7 +148,7 @@ Function MsgItensAtualizados(pedidosNovos() As String, pedidosFinalizados() As S
         Next item
     End If
     
-    msgBoxResult = msgBox(msgItensParaAtualizar, vbInformation + vbOKCancel, "Itens para atualizar na planilha")
+    msgBoxResult = MsgBox(msgItensParaAtualizar, vbInformation + vbOKCancel, "Itens para atualizar na planilha")
     
     MsgItensAtualizados = msgBoxResult
     
@@ -162,13 +164,13 @@ Function AtualizaPedidosNovos(pedidosNovos() As String)
     
     For i = 0 To UBound(pedidosNovos)
     
-        ultimaLinha = Range("A" & Cells(Rows.Count, 1).End(xlUp).Row).Offset(1, 0).Address
+        ultimaLinha = Range("A" & Cells(Rows.Count, 1).End(xlUp).row).Offset(1, 0).Address
         
         'Data
-        Range(ultimaLinha).Value = pedidosNovos(i, 0)
+        Range(ultimaLinha).Value = CDate(pedidosNovos(i, 0))
         
         'Numero do pedido
-        Range(ultimaLinha).Offset(0, 1).Value = pedidosNovos(i, 1)
+        Range(ultimaLinha).Offset(0, 1).Value = CDbl(pedidosNovos(i, 1))
         
         'Cliente
         Range(ultimaLinha).Offset(0, 2).Value = pedidosNovos(i, 2)
@@ -212,6 +214,7 @@ Function AtualizaPedidosNovos(pedidosNovos() As String)
         
         'Data atualização
         Range(ultimaLinha).Offset(0, 12).Value = Date
+
  
     Next i
 
@@ -288,7 +291,7 @@ End Function
 
 Function NovosPedidos(meusPedidos() As String) As String()
     Dim returnArray() As String, item As Variant, novoPedido As Variant
-    Dim rng As Range
+    Dim rng As Range, rangeCount As Range
     Dim i As Integer, arrSize As Integer
     
     i = 0
@@ -311,7 +314,15 @@ Function NovosPedidos(meusPedidos() As String) As String()
             Next item
             
             'Loopar pelo range, cadastrando os dados em um array
-            arrSize = arrSize + Range(rng.Address, rng.End(xlUp).Offset(1, 0).Address).Count
+            For Each rangeCount In Range(rng.Address, rng.End(xlUp).Offset(1, 0).Address)
+                If rangeCount.Value = "" Or rangeCount.Value = rng.Value Then
+                
+                    arrSize = arrSize + 1
+                    
+                    'arrSize = arrSize + Range(rng.Address, rng.End(xlUp).Offset(1, 0).Address).Count
+                End If
+            Next rangeCount
+            
         End If
         
 NextIteration:
@@ -328,12 +339,12 @@ NextIteration:
     
     ReDim returnArray(arrSize - 1, 8)
     
-    
+    'Percorre os numeros de pedido na planilha A FATURAR TecSerp
     For Each rng In ActiveSheet.AutoFilter.Range.Offset(1, 0).Columns("E").SpecialCells(xlCellTypeVisible)
         
         If rng.Value <> "" Then
             
-            'Se o numero do pedido(rng) estiver no array meusPedidos, vai pra proxima iteracao
+            'Verifica se o pedido esta na minha planilha
             For Each item In meusPedidos
                 
                 If rng = item Then
@@ -345,37 +356,41 @@ NextIteration:
             Next item
 
 
-
+            'Se não tiver na minha planilha, guarda pedido e todos os itens em um array
             For Each novoPedido In Range(rng.Address, rng.End(xlUp).Offset(1, 0).Address)
-
-                'Data do pedido
-                returnArray(i, 0) = Range(novoPedido.Offset(0, -4).Address).Value
+            
+                If novoPedido.Value = "" Or novoPedido.Value = rng.Value Then
                 
-                'Numero do pedido
-                returnArray(i, 1) = rng
+                    'Data do pedido
+                    returnArray(i, 0) = Range(novoPedido.Offset(0, -4).Address).Value
+                    
+                    'Numero do pedido
+                    returnArray(i, 1) = rng
+                    
+                    'Cliente
+                    returnArray(i, 2) = Range(novoPedido.Offset(0, 1).Address).Value
+                    
+                    'Produto
+                    returnArray(i, 3) = Range(novoPedido.Offset(0, 7).Address).Value
+                    
+                    'Vendedor
+                    returnArray(i, 4) = Range(novoPedido.Offset(0, 3).Address).Value
+                    
+                    'Cadastrado
+                    returnArray(i, 5) = Range(novoPedido.Offset(0, 4).Address).Value
+                    
+                    'Quantidade
+                    returnArray(i, 6) = Range(novoPedido.Offset(0, 9).Address).Value
+                    
+                    'Unidade
+                    returnArray(i, 7) = Range(novoPedido.Offset(0, 10).Address).Value
+                    
+                    'Valor
+                    returnArray(i, 8) = Range(novoPedido.Offset(0, 8).Address).Value
+                    
+                    i = i + 1
                 
-                'Cliente
-                returnArray(i, 2) = Range(novoPedido.Offset(0, 1).Address).Value
-                
-                'Produto
-                returnArray(i, 3) = Range(novoPedido.Offset(0, 7).Address).Value
-                
-                'Vendedor
-                returnArray(i, 4) = Range(novoPedido.Offset(0, 3).Address).Value
-                
-                'Cadastrado
-                returnArray(i, 5) = Range(novoPedido.Offset(0, 4).Address).Value
-                
-                'Quantidade
-                returnArray(i, 6) = Range(novoPedido.Offset(0, 9).Address).Value
-                
-                'Unidade
-                returnArray(i, 7) = Range(novoPedido.Offset(0, 10).Address).Value
-                
-                'Valor
-                returnArray(i, 8) = Range(novoPedido.Offset(0, 8).Address).Value
-                
-                i = i + 1
+                End If
             Next novoPedido
 
         End If
@@ -403,7 +418,7 @@ Function AbrePlanilhaTecSerp(systemDate() As String, pastaRaiz As Object, filter
     ActiveWorkbook.Sheets("Macro").Select
     
     'Criar uma tabela e filtra essa tabela com uma data
-    ActiveSheet.ListObjects.Add(xlSrcRange, Range("A1:" & "AJ" & Cells(Rows.Count, 1).End(xlUp).Row), , xlYes).Name _
+    ActiveSheet.ListObjects.Add(xlSrcRange, Range("A1:" & "AJ" & Cells(Rows.Count, 1).End(xlUp).row), , xlYes).Name _
         = "Tabela1"
     
     ActiveSheet.ListObjects("Tabela1").TableStyle = ""
@@ -420,7 +435,7 @@ Function FechaPlanilhaTecSerp()
     
 End Function
 
-Function PedidosEmAberto() As String()
+Function pedidosEmAberto() As String()
     Dim rangeNumPedidos() As String, rng As Range
     Dim arrPedidos() As String
     Dim iterator As Integer, i As Integer, numPedidos As Integer
@@ -467,7 +482,7 @@ nxt:
     
     
     
-    PedidosEmAberto = arrPedidos()
+    pedidosEmAberto = arrPedidos()
     
 End Function
 
