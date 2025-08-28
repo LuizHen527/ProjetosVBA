@@ -80,7 +80,7 @@ Function PegarPerfisDoPedido() As String()
             For Each rgnRow In Range(rng.Offset(0, 1), Cells(rng.row, Columns.Count).End(xlToLeft))
             
                 If Cells(5, rgnRow.Column).Value <> "TOTAL" And _
-                rgnRow.Value > 0 Then
+                   rgnRow.Value > 0 Then
                 
                     'NUMERO PEDIDO
                     perfis(iterator, 0) = pedidoNumero
@@ -120,3 +120,15 @@ Function PegarPerfisDoPedido() As String()
     
     
 End Function
+
+
+
+
+
+
+
+
+
+
+
+

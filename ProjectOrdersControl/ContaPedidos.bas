@@ -5,14 +5,15 @@ Option Explicit
 Sub ContaPedidosEmAberto()
 
     Application.ScreenUpdating = False
+    
+    ActiveSheet.Shapes.Range("pedido_menu").Visible = Not ActiveSheet.Shapes.Range("pedido_menu").Visible
+    
     Dim pedidosEmAbertoo() As String
     Dim i As Integer
 
     pedidosEmAbertoo = GetPedidosEmAberto
     
     MontaTabela pedidosEmAbertoo
-    
-    MsgBox "Totais de pedidos atualizados", vbInformation + vbOKOnly, "Totais Pedidos"
     
     Application.ScreenUpdating = True
     
@@ -29,11 +30,19 @@ Function MontaTabela(pedidosArray() As String)
     Dim initialRange As String
     Dim dataArr() As String, dataArrComp() As String, anosContados() As String
     
-    initialRange = Range("A3").Address
+    initialRange = Range("A6").Address
 
-    Sheets("totais_pedidos").Select
+    Sheets("dashboard").Select
     
-    Range("A3:E77").Delete (xlShiftUp)
+    If IsObject("DashBoardTable") Then
+        Range("A6").Select
+        
+        If ActiveSheet.FilterMode Then
+            ActiveSheet.ShowAllData
+        End If
+    End If
+    
+    Range("A3", "M" & Cells(Rows.Count, 1).End(xlUp).row).Delete
         
     iterator = 0
     
