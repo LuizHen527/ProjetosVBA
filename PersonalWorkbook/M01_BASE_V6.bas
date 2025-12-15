@@ -35,7 +35,7 @@ Sheets("Base (2)").Select
 
 'Apagas as colunas não desejadas
 'Range("B:D,F:H,J:J,Q:Q,U:U,X:X,AA:AC,AF:AT").Select
-Range("B:D,F:H,J:J,N:N,R:R,V:V,Y:Y,AB:AD,AG:AY,AF:AF").Select
+Range("B:D,F:H,J:J,N:N,R:R,V:V,Y:Y,AB:AD,AG:AY").Select
     Selection.Delete Shift:=xlToLeft
     'B = Programado / C = Previsão / D = Emissão / E: PEDIDO 'F = VML /G = Setor
     '/ H = Faturado /range_duplicate_row = Cidade 'Q = Predominância / U = Gm / X = Sem impostos

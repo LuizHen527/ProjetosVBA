@@ -132,8 +132,8 @@ End With
         False, False, False, False, False, False, False, False, False, False, False, False)
     ActiveSheet.PivotTables("Pedidos").PivotFields("Conv. Qtde").Subtotals = Array( _
         False, False, False, False, False, False, False, False, False, False, False, False)
-    'ActiveSheet.PivotTables("Pedidos").PivotFields("Conv. Unid").Subtotals = Array( _
-    '    False, False, False, False, False, False, False, False, False, False, False, False)
+    ActiveSheet.PivotTables("Pedidos").PivotFields("Conv. Unid").Subtotals = Array( _
+        False, False, False, False, False, False, False, False, False, False, False, False)
     ActiveSheet.PivotTables("Pedidos").PivotFields("21.ConvQtd").Subtotals = Array( _
         False, False, False, False, False, False, False, False, False, False, False, False)
     ActiveSheet.PivotTables("Pedidos").PivotFields("22.ConvUnid").Subtotals = Array _
