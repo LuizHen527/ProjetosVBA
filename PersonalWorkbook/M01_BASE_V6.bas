@@ -4,43 +4,44 @@ Public last_line As Integer
 'Macro para organizar os dados da planilha à faturar da MOLDUCOLOR de acordo com a BD TecSerp
 
 Sub M1_BASE_V3()
-                                                         
-'Mensagem de inícido do código
-MsgBox "Start!"
 
-''As mudanças do programa não aparecem passo-a-passo na tela
-'Application.ScreenUpdating = False
-Application.DisplayAlerts = False
-
-Application.Calculation = xlCalculationAutomatic
-
-'range_row inicial da Base
-inicial_range = Cells(Cells.Rows.Count, 1).End(xlUp).row
-
-'Transforma o nome da planilha base em variavel
-plan_name = ActiveWorkbook.Name
-last_line = Cells(Cells.Rows.Count, 1).End(xlUp).row
-
-'Configura as abas iniciais: cria abas, exclui abas, altera nomes e oculta aba
-Sheets(1).Select
-    Sheets(1).Name = "Base"
-Sheets(Array(2, 3)).Select
-    ActiveWindow.SelectedSheets.Delete
-Sheets("Base").Select
-    Sheets("Base").Copy After:=Sheets(1)
-Sheets("Base (2)").Select
-    Sheets("Base (2)").Name = "Macro"
-        Sheets("Base").Select
-            ActiveWindow.SelectedSheets.Visible = False
-
-'Apagas as colunas não desejadas
-'Range("B:D,F:H,J:J,Q:Q,U:U,X:X,AA:AC,AF:AT").Select
-Range("B:D,F:H,J:J,N:N,R:R,V:V,Y:Y,AB:AD,AG:AY").Select
-    Selection.Delete Shift:=xlToLeft
-    'B = Programado / C = Previsão / D = Emissão / E: PEDIDO 'F = VML /G = Setor
-    '/ H = Faturado /range_duplicate_row = Cidade 'Q = Predominância / U = Gm / X = Sem impostos
-    'AA = Desconto / AB = Estoque / AC = Disponível 'AF:AT = Impostos
-
+If False Then
+    'Mensagem de inícido do código
+    MsgBox "Start!"
+    
+    ''As mudanças do programa não aparecem passo-a-passo na tela
+    'Application.ScreenUpdating = False
+    Application.DisplayAlerts = False
+    
+    Application.Calculation = xlCalculationAutomatic
+    
+    'range_row inicial da Base
+    inicial_range = Cells(Cells.Rows.Count, 1).End(xlUp).row
+    
+    'Transforma o nome da planilha base em variavel
+    plan_name = ActiveWorkbook.Name
+    last_line = Cells(Cells.Rows.Count, 1).End(xlUp).row
+    
+    'Configura as abas iniciais: cria abas, exclui abas, altera nomes e oculta aba
+    Sheets(1).Select
+        Sheets(1).Name = "Base"
+    Sheets(Array(2, 3)).Select
+        ActiveWindow.SelectedSheets.Delete
+    Sheets("Base").Select
+        Sheets("Base").Copy After:=Sheets(1)
+    Sheets("Base (2)").Select
+        Sheets("Base (2)").Name = "Macro"
+            Sheets("Base").Select
+                ActiveWindow.SelectedSheets.Visible = False
+    
+    'Apagas as colunas não desejadas
+    'Range("B:D,F:H,J:J,Q:Q,U:U,X:X,AA:AC,AF:AT").Select
+    Range("B:D,F:H,J:J,N:N,R:R,V:V,Y:Y,AB:AD,AG:AY").Select
+        Selection.Delete Shift:=xlToLeft
+        'B = Programado / C = Previsão / D = Emissão / E: PEDIDO 'F = VML /G = Setor
+        '/ H = Faturado /range_duplicate_row = Cidade 'Q = Predominância / U = Gm / X = Sem impostos
+        'AA = Desconto / AB = Estoque / AC = Disponível 'AF:AT = Impostos
+End If
 'Transforma data quebrada em data inteira               '
 Columns("B:B").Select
     Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
