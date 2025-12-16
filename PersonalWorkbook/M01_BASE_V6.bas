@@ -4,9 +4,12 @@ Public last_line As Integer
 'Macro para organizar os dados da planilha à faturar da MOLDUCOLOR de acordo com a BD TecSerp
 
 Sub M1_BASE_V3()
+
+Dim objCelulaAtual As Range
+Dim varCelula As Variant
                                                          
 'Mensagem de inícido do código
-MsgBox "Start!"
+'MsgBox "Start!"
 
 ''As mudanças do programa não aparecem passo-a-passo na tela
 'Application.ScreenUpdating = False
@@ -20,6 +23,7 @@ inicial_range = Cells(Cells.Rows.Count, 1).End(xlUp).row
 'Transforma o nome da planilha base em variavel
 plan_name = ActiveWorkbook.Name
 last_line = Cells(Cells.Rows.Count, 1).End(xlUp).row
+
 
 'Configura as abas iniciais: cria abas, exclui abas, altera nomes e oculta aba
 Sheets(1).Select
@@ -36,6 +40,45 @@ Sheets("Base (2)").Select
 'Apagas as colunas não desejadas
 Range("B:E, G:I, K:K, R:R, V:V, X:X, Z:Z, AC:AC, AE:BL").Select
     Selection.Delete Shift:=xlToLeft
+
+'Cria coluna "Conv. Unid"
+
+Range("R1").Value = "Conv. Unid"
+
+Set objCelulaAtual = Range(Cells(Rows.Count, 17).End(xlUp).Address)
+
+objCelulaAtual.Select
+
+While Not (objCelulaAtual.Address = "$Q$1")
+
+    If objCelulaAtual.Value > 0 Then
+        If objCelulaAtual.Offset(-1, 0) > 0 Then
+            'Pega o range e coloca "PEÇA" do lado de todas as cells
+            For Each varCelula In Range(objCelulaAtual.Address, objCelulaAtual.End(xlUp).Address)
+                varCelula.Offset(0, 1).Value = "PEÇA"
+            Next
+            
+            'Pula pra proxima celula
+            ActiveCell.End(xlUp).Select
+            ActiveCell.End(xlUp).Select
+            
+        Else
+            objCelulaAtual.Offset(0, 1).Value = "PEÇA"
+            'Pula pra proxima celula
+            ActiveCell.End(xlUp).Select
+            
+        End If
+        
+    Else
+        'Pula pra proxima celula
+        ActiveCell.End(xlUp).Select
+    
+    End If
+    
+    Set objCelulaAtual = Range(ActiveCell.Address)
+    
+Wend
+
 
 'Transforma data quebrada em data inteira               '
 Columns("B:B").Select
