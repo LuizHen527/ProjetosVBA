@@ -58,14 +58,14 @@ End Sub
 
 Sub MOLDURAS_VENDAS_2()
 
-last_line = Cells(Cells.Rows.Count, 1).End(xlUp).row
+last_line = Cells(Cells.Rows.Count, 1).End(xlUp).Row
 select_line = last_line - 1
     Range("A" & select_line & ":" & "C" & select_line).Copy
         
 'Atualiza planilha Histórico de vendas
 Workbooks.Open fileName:="\\121.137.1.5\manutencao1\Lucas\12_Relatórios\2023\01_Relatórios Diários\07_Histórico Vendas de Molduras.xlsx"
     Sheets("BASE").Select
-    last_line_2 = Cells(Cells.Rows.Count, 1).End(xlUp).row
+    last_line_2 = Cells(Cells.Rows.Count, 1).End(xlUp).Row
         Range("A" & last_line_2).Select
             Selection.End(xlUp).Select
         ActiveCell.Offset(1, 0).Select

@@ -75,7 +75,7 @@ End Sub
 
 Sub R2_RAUL() 'Geração da aba referente as familias
 
-panda = Cells(Cells.Rows.Count, 1).End(xlUp).row
+panda = Cells(Cells.Rows.Count, 1).End(xlUp).Row
 
 'Copia os dados e insere semanas
 Range("A2").Select

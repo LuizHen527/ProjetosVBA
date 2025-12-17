@@ -178,10 +178,10 @@ With ActiveSheet.PivotTables("MOLDURAS_1").PivotFields("Ano")
 Range("A1").Select
 
 'range_row inicial da Base
-inicial_range_mold = Cells(Cells.Rows.Count, 1).End(xlUp).row
+inicial_range_mold = Cells(Cells.Rows.Count, 1).End(xlUp).Row
 
 'Transforma o nome da planilha base em variavel
-last_line_mold = Cells(Cells.Rows.Count, 1).End(xlUp).row
+last_line_mold = Cells(Cells.Rows.Count, 1).End(xlUp).Row
     
     Range("A3").Select
         Selection.CurrentRegion.Select

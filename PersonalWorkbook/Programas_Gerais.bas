@@ -72,7 +72,7 @@ Sub Importaçao()
 Open Range("B1").Value For Output As 1
 
 Range("A2").Select
-LastRow = Cells(Cells.Rows.Count, 1).End(xlUp).row - 1
+LastRow = Cells(Cells.Rows.Count, 1).End(xlUp).Row - 1
 
 For i = 1 To LastRow
 
@@ -340,10 +340,10 @@ Sub CalendarMaker()
        ' Loop through range a3:g8 incrementing each cell after the "1"
        ' cell.
        For Each cell In Range("a3:g8")
-           RowCell = cell.row
+           RowCell = cell.Row
            ColCell = cell.Column
            ' Do if "1" is in first column.
-           If cell.Column = 1 And cell.row = 3 Then
+           If cell.Column = 1 And cell.Row = 3 Then
            ' Do if current cell is not in 1st column.
            ElseIf cell.Column <> 1 Then
                If cell.Offset(0, -1).Value >= 1 Then
@@ -358,7 +358,7 @@ Sub CalendarMaker()
                    End If
                End If
            ' Do only if current cell is not in Row 3 and is in Column 1.
-           ElseIf cell.row > 3 And cell.Column = 1 Then
+           ElseIf cell.Row > 3 And cell.Column = 1 Then
                cell.Value = cell.Offset(-1, 6).Value + 1
                ' Stop when the last day of the month has been entered.
                If cell.Value > (FinalDay - StartDay) Then

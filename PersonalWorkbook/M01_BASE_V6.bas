@@ -18,11 +18,11 @@ Application.DisplayAlerts = False
 Application.Calculation = xlCalculationAutomatic
 
 'range_row inicial da Base
-inicial_range = Cells(Cells.Rows.Count, 1).End(xlUp).row
+inicial_range = Cells(Cells.Rows.Count, 1).End(xlUp).Row
 
 'Transforma o nome da planilha base em variavel
 plan_name = ActiveWorkbook.Name
-last_line = Cells(Cells.Rows.Count, 1).End(xlUp).row
+last_line = Cells(Cells.Rows.Count, 1).End(xlUp).Row
 
 
 'Configura as abas iniciais: cria abas, exclui abas, altera nomes e oculta aba
@@ -180,7 +180,7 @@ Workbooks.Open fileName:="\\121.137.1.5\manutencao1\Lucas\09_Banco Dados\BD TecS
 Range("N2").Select
     ActiveCell.FormulaR1C1 = "=IFERROR(VLOOKUP(RC[-6],'[BD TecSerp.xlsm]Análise'!R1C1:R90000C13,5,0),"""")"
         With ActiveSheet
-            LastRow = Range("A" & .Rows.Count).End(xlUp).row
+            LastRow = Range("A" & .Rows.Count).End(xlUp).Row
             Set RngAutopreencher = Range("N2:N" & LastRow)
         End With
     Selection.AutoFill Destination:=RngAutopreencher
@@ -189,7 +189,7 @@ Range("N2").Select
 Range("O2").Select
     ActiveCell.FormulaR1C1 = "=IFERROR(VLOOKUP(RC[-7],'[BD TecSerp.xlsm]Análise'!R1C1:R90000C13,6,0),"""")"
         With ActiveSheet
-            LastRow = Range("A" & .Rows.Count).End(xlUp).row
+            LastRow = Range("A" & .Rows.Count).End(xlUp).Row
             Set RngAutopreencher = Range("O2:O" & LastRow)
         End With
     Selection.AutoFill Destination:=RngAutopreencher
@@ -198,7 +198,7 @@ Range("O2").Select
 Range("P2").Select
     ActiveCell.FormulaR1C1 = "=IFERROR(VLOOKUP(RC[-8],'[BD TecSerp.xlsm]Análise'!R1C1:R90000C13,7,0),"""")"
         With ActiveSheet
-            LastRow = Range("A" & .Rows.Count).End(xlUp).row
+            LastRow = Range("A" & .Rows.Count).End(xlUp).Row
             Set RngAutopreencher = Range("P2:P" & LastRow)
         End With
     Selection.AutoFill Destination:=RngAutopreencher
@@ -207,7 +207,7 @@ Range("P2").Select
 Range("Q2").Select
     ActiveCell.FormulaR1C1 = "=IFERROR(VLOOKUP(RC[-9],'[BD TecSerp.xlsm]Análise'!R1C1:R90000C13,8,0),"""")"
         With ActiveSheet
-            LastRow = Range("A" & .Rows.Count).End(xlUp).row
+            LastRow = Range("A" & .Rows.Count).End(xlUp).Row
             Set RngAutopreencher = Range("Q2:Q" & LastRow)
         End With
     Selection.AutoFill Destination:=RngAutopreencher
@@ -216,7 +216,7 @@ Range("Q2").Select
 Range("R2").Select
     ActiveCell.FormulaR1C1 = "=IFERROR(VLOOKUP(RC[-10],'[BD TecSerp.xlsm]Análise'!R1C1:R90000C13,9,0),"""")"
         With ActiveSheet
-            LastRow = Range("A" & .Rows.Count).End(xlUp).row
+            LastRow = Range("A" & .Rows.Count).End(xlUp).Row
             Set RngAutopreencher = Range("R2:R" & LastRow)
         End With
     Selection.AutoFill Destination:=RngAutopreencher
@@ -225,7 +225,7 @@ Range("R2").Select
 Range("S2").Select
     ActiveCell.FormulaR1C1 = "=IFERROR(VLOOKUP(RC[-11],'[BD TecSerp.xlsm]Análise'!R1C1:R90000C13,10,0),"""")"
         With ActiveSheet
-            LastRow = Range("A" & .Rows.Count).End(xlUp).row
+            LastRow = Range("A" & .Rows.Count).End(xlUp).Row
             Set RngAutopreencher = Range("S2:S" & LastRow)
         End With
     Selection.AutoFill Destination:=RngAutopreencher
@@ -234,7 +234,7 @@ Range("S2").Select
 Range("T2").Select
     ActiveCell.FormulaR1C1 = "=IFERROR(VLOOKUP(RC[-12],'[BD TecSerp.xlsm]Análise'!R1C1:R90000C13,11,0),"""")"
         With ActiveSheet
-            LastRow = Range("A" & .Rows.Count).End(xlUp).row
+            LastRow = Range("A" & .Rows.Count).End(xlUp).Row
             Set RngAutopreencher = Range("T2:T" & LastRow)
         End With
     Selection.AutoFill Destination:=RngAutopreencher
@@ -243,7 +243,7 @@ Range("T2").Select
 Range("U2").Select
     ActiveCell.FormulaR1C1 = "=IFERROR(VLOOKUP(RC[-13],'[BD TecSerp.xlsm]Análise'!R1C1:R90000C13,12,0),"""")"
         With ActiveSheet
-            LastRow = Range("A" & .Rows.Count).End(xlUp).row
+            LastRow = Range("A" & .Rows.Count).End(xlUp).Row
             Set RngAutopreencher = Range("U2:U" & LastRow)
         End With
      Selection.AutoFill Destination:=RngAutopreencher
@@ -252,7 +252,7 @@ Range("U2").Select
 Range("V2").Select
     ActiveCell.FormulaR1C1 = "=IFERROR(VLOOKUP(RC[-14],'[BD TecSerp.xlsm]Análise'!R1C1:R90000C13,13,0),"""")"
         With ActiveSheet
-            LastRow = Range("A" & .Rows.Count).End(xlUp).row
+            LastRow = Range("A" & .Rows.Count).End(xlUp).Row
             Set RngAutopreencher = Range("V2:V" & LastRow)
         End With
      Selection.AutoFill Destination:=RngAutopreencher
@@ -261,7 +261,7 @@ Range("V2").Select
 Range("W2").Select
     ActiveCell.FormulaR1C1 = "=IFERROR(VLOOKUP(RC[-15],'[BD TecSerp.xlsm]Análise'!R1C1:R90000C14,14,0),"""")"
         With ActiveSheet
-            LastRow = Range("A" & .Rows.Count).End(xlUp).row
+            LastRow = Range("A" & .Rows.Count).End(xlUp).Row
             Set RngAutopreencher = Range("W2:W" & LastRow)
         End With
      Selection.AutoFill Destination:=RngAutopreencher
@@ -272,7 +272,7 @@ Range("X2").Select
     ActiveCell.FormulaR1C1 = _
     "=IFERROR(VLOOKUP(RC[-16],'[BD TecSerp.xlsm]Análise'!R1C1:R90000C15,15,0),"""")"
         With ActiveSheet
-            LastRow = Range("A" & .Rows.Count).End(xlUp).row
+            LastRow = Range("A" & .Rows.Count).End(xlUp).Row
             Set RngAutopreencher = Range("X2:X" & LastRow)
         End With
      Selection.AutoFill Destination:=RngAutopreencher
@@ -282,7 +282,7 @@ Range("Y2").Select
     ActiveCell.FormulaR1C1 = _
     "=IFERROR(VLOOKUP(RC[-17],'[BD TecSerp.xlsm]Análise'!R1C1:R90000C16,16,0),"""")"
         With ActiveSheet
-            LastRow = Range("A" & .Rows.Count).End(xlUp).row
+            LastRow = Range("A" & .Rows.Count).End(xlUp).Row
             Set RngAutopreencher = Range("Y2:Y" & LastRow)
         End With
      Selection.AutoFill Destination:=RngAutopreencher
@@ -292,7 +292,7 @@ Range("Z2").Select
     ActiveCell.FormulaR1C1 = _
     "=IFERROR(VLOOKUP(RC[-18],'[BD TecSerp.xlsm]Análise'!R1C1:R90000C17,17,0),"""")"
         With ActiveSheet
-            LastRow = Range("A" & .Rows.Count).End(xlUp).row
+            LastRow = Range("A" & .Rows.Count).End(xlUp).Row
             Set RngAutopreencher = Range("Z2:Z" & LastRow)
         End With
      Selection.AutoFill Destination:=RngAutopreencher
@@ -302,7 +302,7 @@ Range("AA2").Select
     ActiveCell.FormulaR1C1 = _
     "=IFERROR(VLOOKUP(RC[-19],'[BD TecSerp.xlsm]Análise'!R1C1:R90000C18,18,0),"""")"
         With ActiveSheet
-            LastRow = Range("A" & .Rows.Count).End(xlUp).row
+            LastRow = Range("A" & .Rows.Count).End(xlUp).Row
             Set RngAutopreencher = Range("AA2:AA" & LastRow)
         End With
      Selection.AutoFill Destination:=RngAutopreencher
@@ -311,7 +311,7 @@ Range("AA2").Select
 Range("AB2").Select
     ActiveCell.FormulaR1C1 = "=IFERROR(VLOOKUP(RC[-20],'[BD TecSerp.xlsm]Análise'!R1C1:R90000C19,19,0),"""")"
         With ActiveSheet
-            LastRow = Range("A" & .Rows.Count).End(xlUp).row
+            LastRow = Range("A" & .Rows.Count).End(xlUp).Row
             Set RngAutopreencher = Range("AB2:AB" & LastRow)
         End With
      Selection.AutoFill Destination:=RngAutopreencher
@@ -320,9 +320,9 @@ Range("AB2").Select
 Range("AC1").Select
     ActiveCell.FormulaR1C1 = "20.VML"
 Range("AC2").Select
-    ActiveCell.FormulaR1C1 = "=VLOOKUP(RC[-26],Base!C5:C6,2,0)"
+    ActiveCell.FormulaR1C1 = "=VLOOKUP(RC[-26],Base!C6:C7,2,0)"
         With ActiveSheet
-            LastRow = Range("A" & .Rows.Count).End(xlUp).row
+            LastRow = Range("A" & .Rows.Count).End(xlUp).Row
             Set RngAutopreencher = Range("AC2:AC" & LastRow)
         End With
      Selection.AutoFill Destination:=RngAutopreencher
@@ -339,7 +339,7 @@ Application.Calculation = xlCalculationManual
 
 'Seleciona a célula A2 e armazena o número da última linha em last_line
 Range("A2").Select
-last_line = Cells(Cells.Rows.Count, 1).End(xlUp).row
+last_line = Cells(Cells.Rows.Count, 1).End(xlUp).Row
 
 
 'Classifica as celulas por data -> cliente -> Pedido -> Código -> Quantidade
@@ -406,7 +406,7 @@ Range("AJ2").Select
         :=False, Transpose:=False
 
 'Insere 50 linhas vazias para evitar bug
-Rows("2:50").Select
+Rows("2:70").Select
     Selection.Insert Shift:=xlDown, CopyOrigin:=xlFormatFromLeftOrAbove
 
 'Início remoção duplicados
@@ -427,13 +427,13 @@ Range("C1").Select
             If ActiveCell.Value = "" Then
                 ActiveCell.Offset(0, -31).Select
             Else
-                first_row = ActiveCell.row
-                last_row = ActiveCell.row
+                first_row = ActiveCell.Row
+                last_row = ActiveCell.Row
                 
                 'Verificação duplicada +1 linha
                 If ActiveCell.Offset(-1, 0) <> "" Then
                     Selection.End(xlUp).Select
-                        first_row = ActiveCell.row
+                        first_row = ActiveCell.Row
                         range_row = last_row - first_row + 1
                     Range("AH" & first_row & ":" & "AJ" & last_row).Select
                         Selection.Cut
@@ -509,10 +509,10 @@ Range("C1").Select
 
 'Deletar linhas
 Range("A2").Select
-    delete_first_line = ActiveCell.row
+    delete_first_line = ActiveCell.Row
 Selection.End(xlDown).Select
 ActiveCell.Offset(-1, 0).Select
-    delete_last_line = ActiveCell.row
+    delete_last_line = ActiveCell.Row
 Rows(delete_first_line & ":" & delete_last_line).Select
     Selection.Delete Shift:=xlUp
 Columns("AF:AG").Select
@@ -520,7 +520,7 @@ Columns("AF:AG").Select
     
 'Contagem de linhas
 Range("A2").Select
-last_line = Cells(Cells.Rows.Count, 1).End(xlUp).row
+last_line = Cells(Cells.Rows.Count, 1).End(xlUp).Row
 
 Range("AF1").Select
     ActiveCell.FormulaR1C1 = "21.ConvQtd"
@@ -564,7 +564,7 @@ Range("A1").Select
 
 Dim range_row_final As Integer
 Range("A1").Select
-    range_row_final = Cells(Cells.Rows.Count, 1).End(xlUp).row
+    range_row_final = Cells(Cells.Rows.Count, 1).End(xlUp).Row
     linhas_excluidas = inicial_range - range_row_final
         MsgBox ("Número de linhas excluidas: " & linhas_excluidas)
 
@@ -602,7 +602,7 @@ Range("AD1").Value = "19.Conv. Metros"
 Range("AD2").Select
     ActiveCell.FormulaR1C1 = "=RC[-7]*RC[4]"
         With ActiveSheet
-            LastRow = Range("A" & .Rows.Count).End(xlUp).row
+            LastRow = Range("A" & .Rows.Count).End(xlUp).Row
             Set RngAutopreencher = Range("AD2:AD" & LastRow)
         End With
      Selection.AutoFill Destination:=RngAutopreencher

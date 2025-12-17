@@ -5,7 +5,7 @@ Sub Replicar_Pedidos()
 'Application.ScreenUpdating = False
 
 'Sheets("Macro").Select
-    last_line = Cells(Cells.Rows.Count, 1).End(xlUp).row
+    last_line = Cells(Cells.Rows.Count, 1).End(xlUp).Row
 
     Columns("F:F").Select
         Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove

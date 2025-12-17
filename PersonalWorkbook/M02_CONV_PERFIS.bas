@@ -83,7 +83,7 @@ Sub Fórmulas()
 Application.ScreenUpdating = False
 Application.DisplayAlerts = False
 
-last_line = Cells(Cells.Rows.Count, 1).End(xlUp).row
+last_line = Cells(Cells.Rows.Count, 1).End(xlUp).Row
 
 Range("B3").Select
     ActiveCell.FormulaR1C1 = _
@@ -105,7 +105,7 @@ Application.ScreenUpdating = False
 Application.DisplayAlerts = False
 
 nome_da_planilha = ActiveWorkbook.Name
-last_line = Cells(Cells.Rows.Count, 1).End(xlUp).row
+last_line = Cells(Cells.Rows.Count, 1).End(xlUp).Row
 
     Range("B3:K" & last_line).Select
         Selection.Copy
